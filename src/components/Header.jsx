@@ -13,6 +13,7 @@ const Header = () => {
         borderBottom: '1px solid #e0e0e0',
       }}
     >
+      {/*A remplacer avec la logique de page active*/}
       <h1 className='ms-4'>Dashboard</h1>
       <div className=" me-4">
       
