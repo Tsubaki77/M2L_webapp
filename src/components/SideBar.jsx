@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, MessageSquareMore, Dumbbell, Bolt, LogOut } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, MessageSquareMore, Dumbbell, Bolt, LogOut, ListTodo } from 'lucide-react';
 
 //Les path à changer si nécessaire en fonction de ce qui est défini dans le routeur 
 const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={24} /> },
+    { name: 'Les Demandes', path: '/demandes_en_attentes', icon: <ListTodo size={24} /> },
     { name: 'Mes Salles', path: '/salles', icon: <Dumbbell size={24} /> },
     { name: 'Calendrier', path: '/calendrier', icon: <CalendarDays size={24} /> },
     { name: 'Chat', path: '/chat', icon: <MessageSquareMore size={24} /> },

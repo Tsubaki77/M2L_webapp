@@ -9,12 +9,10 @@ const SallesListCard = () => {
   useEffect(() => {
     const fetchSalles = async () => {
       try {
-        // A remplacer par un vrai appel API
         setIsLoading(true);
         // Simulation d'appel API
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Simulation de données API "MAISON DES LIGUES DE LORRAINE"
         const mockResponse = [
           { id: 1, nom: 'Salle Stanislas', ville: 'Nancy (Siège)', note: 5, status: 'free', type: 'reunion' },
           { id: 2, nom: 'Dojo Régional', ville: 'Pont-à-Mousson', note: 4, status: 'busy', type: 'sport' },
@@ -57,46 +55,45 @@ const SallesListCard = () => {
       <style>
         {`
           .custom-scroll::-webkit-scrollbar { width: 6px; }
-          .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-          .custom-scroll::-webkit-scrollbar-thumb { background: #ADABAB; border-radius: 10px; }
+          .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+          .custom-scroll::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
           .custom-scroll::-webkit-scrollbar-thumb:hover { background: #848181; }
         `}
       </style>
 
       <div 
-        className="card border-0 shadow-sm h-100" 
+        className="card border-0 shadow-sm" 
         style={{ 
           borderRadius: '16px', 
           backgroundColor: '#FAFAFA', 
-          width: '100%', 
-          maxWidth: '400px'
+          width: '40%', 
+          height: '390px' 
         }}
       >
-        <div className="card-body p-4 d-flex flex-column" style={{ height: '400px' }}>
+        <div className="card-body d-flex flex-column h-100">
           
-          {/* En-tête M2L */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          {/* En-tête */}
+          <div className="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
             <div>
-              <h5 className="fw-bold mb-0" style={{ color: '#430000' }}>Salles M2L</h5>
-              <p className="small mb-0" style={{ color: '#848181' }}>Espaces gérés</p>
+              <h5 className="fw-bold mb-0" style={{ color: '#430000', fontSize: '1.3rem' }}>Mes Salles</h5>
+              <p className="small mb-0" style={{ color: '#848181', fontSize: '1rem' }}>Espaces gérés</p>
             </div>
             {!isLoading && !error && (
-              <span className="badge rounded-pill" style={{ backgroundColor: '#ADABAB', color: '#FFF' }}>
+              <span className="badge rounded-pill" style={{ backgroundColor: '#ADABAB', color: '#FFF', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem'  }}>
                 {salles.length}
               </span>
             )}
           </div>
 
-          {/* Loading... */}
+          {/* États de chargement */}
           {isLoading && (
             <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-muted">
               <Loader2 size={32} className="spin-animation mb-2" style={{ color: '#CC4040' }} />
               <style>{`.spin-animation { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
-              <p className="small">Récupération des données...</p>
+              <p className="small">Chargement...</p>
             </div>
           )}
 
-          {/* Error... */}
           {error && (
             <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-danger">
               <AlertCircle size={32} className="mb-2" />
@@ -104,46 +101,50 @@ const SallesListCard = () => {
             </div>
           )}
 
-          {/* Liste */}
+          {/* Liste Scrollable */}
           {!isLoading && !error && (
-            <div className="d-flex flex-column gap-3 custom-scroll" style={{ overflowY: 'auto', paddingRight: '5px' }}>
+            <div 
+              className="d-flex flex-column gap-3 custom-scroll flex-grow-1" 
+              style={{ 
+                overflowY: 'auto', 
+                paddingRight: '5px',
+                minHeight: 0 
+              }}
+            >
               {salles.map((salle) => (
                 <div 
                   key={salle.id} 
                   className="p-3 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between" 
                   style={{ backgroundColor: '#FFFFFF' }}>
 
-                  <div className="d-flex align-items-center gap-3">
-                    {/* Icone adaptée trophée si c'est du sport, batiment sinon */}
+                  <div className="d-flex align-items-center gap-3" style={{ minWidth: 0 }}>
+                    {/* Icone */}
                     <div 
-                      className="d-flex align-items-center justify-content-center rounded-circle" 
+                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" 
                       style={{ 
-                        width: '40px', height: '40px', flexShrink: 0,
+                        width: '40px', height: '40px',
                         backgroundColor: '#FAFAFA', 
                         color: '#430000' 
                       }}>
                       {salle.type === 'sport' ? <Trophy size={18} /> : <Building2 size={18} />}
                     </div>
                     
-                    <div style={{ minWidth: 0 }}>
-                      <h6 className="fw-bold mb-1 text-dark text-truncate">{salle.nom}</h6>
-                      
+                    {/* Textes */}
+                    <div style={{ minWidth: 0, flex: 1 }}> 
+                      <h6 className="fw-bold mb-1 text-dark text-truncate" title={salle.nom}>{salle.nom}</h6>
                       <div className="d-flex flex-column gap-1">
-                        <div className="d-flex align-items-center text-secondary small">
-                           <MapPin size={12} className="me-1" />
-                           {salle.ville}
+                        <div className="d-flex align-items-center text-secondary small text-truncate">
+                           <MapPin size={12} className="me-1 flex-shrink-0" />
+                           <span className="text-truncate">{salle.ville}</span>
                         </div>
-                        <div>
-                          {renderStars(salle.note)}
-                        </div>
+                        <div>{renderStars(salle.note)}</div>
                       </div>
-
                     </div>
                   </div>
 
-                  {/* DROITE */}
-                  <div className="d-flex flex-column align-items-end justify-content-center ps-2">
-                     <ChevronRight size={16} style={{ color: '#ADABAB', cursor: 'pointer' }} />
+                  {/* Fleche */}
+                  <div className="ps-2">
+                      <ChevronRight size={16} style={{ color: '#ADABAB', cursor: 'pointer' }} />
                   </div>
                 </div>
               ))}

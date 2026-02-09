@@ -1,11 +1,14 @@
 import React from 'react';
-import { Dumbbell } from 'lucide-react';
+import { ListTodo } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; 
 
 const SallesCard = () => {
+  const navigate = useNavigate(); 
+  
   return (
     <div 
-      className="card border-0 text-white shadow overflow-hidden position-relative" 
-      style={{backgroundColor: '#CC4040', borderRadius: '16px', width: '50%', height: '200px' }} >
+      className="card border-0 shadow text-white overflow-hidden position-relative" 
+      style={{backgroundColor: '#CC4040', borderRadius: '16px', width: '50%', height: '200px', cursor: 'pointer' }} onClick={() => navigate('/demandes_en_attentes')} >
      
       {/* --- Décorations arrière-plan --- */}
       <div className="position-absolute bg-white rounded-circle" style={{ width: '200px', height: '200px', top: '-80px', right: '-80px', opacity: '0.1' }}></div>
@@ -21,7 +24,7 @@ const SallesCard = () => {
             className="d-flex align-items-center justify-content-center rounded" 
             style={{ width: '50px', height: '50px', backgroundColor: '#800000' }}
           >
-            <Dumbbell size={24} />
+            <ListTodo size={24} />
           </div>
         </div>
 

@@ -8,6 +8,31 @@ body {
   margin: 0;
 }
 
+:root {
+  /* --- Définition des variables de couleurs --- */
+  --m2l-red:       #CC4040;  /* Rouge principal */
+  --m2l-dark-red:  #430000;  /* Bordeaux sombre */
+  --m2l-grey:      #ADABAB;  /* Gris argenté */
+  --m2l-white:     #FFFFFF;  /* Blanc */
+}
+
+.bg-m2l-red {
+  background-color: var(--m2l-red) !important;
+}
+
+.bg-m2l-dark {
+  background-color: var(--m2l-dark-red) !important;
+}
+
+.bg-m2l-grey {
+  background-color: var(--m2l-grey) !important;
+}
+
+.bg-m2l-white {
+  background-color: var(--m2l-white) !important;
+}
+
+
 ::-webkit-scrollbar {
   width: 8px;
 }

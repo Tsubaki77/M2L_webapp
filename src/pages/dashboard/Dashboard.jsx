@@ -6,13 +6,13 @@ import SallesListCard from './SallesListCard';
 
 const Dashboard = () => {
   return (
-    <div className="dashboard ">
-      <div className="cards-container d-flex width-100 gap-4">
+    <div >
+      <div className="cards-container d-flex width-100 gap-3">
         <SallesCard />
         <NotifCard />
       </div>
 
-      <div className='cards-container mt-4 d-flex width-100 gap-4'>
+      <div className='cards-container mt-3 d-flex width-100 gap-3'>
          <CalendarCard />
          <SallesListCard />
       </div>

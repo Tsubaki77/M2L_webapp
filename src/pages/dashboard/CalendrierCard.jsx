@@ -13,11 +13,8 @@ const CalendarCard = () => {
     new Date(2026, 1, 5),  
   ];
 
-  // Fonction vérifie si une date précise (dateToCheck) correspond à L'UNE des dates de réservation.
   const hasReservation = (dateToCheck) => {
-    // La méthode .some() renvoie VRAI si au moins un élément du tableau correspond
     return reservations.some(resaDate => 
-      // On compare Jour, Mois et Année strictement
       resaDate.getDate() === dateToCheck.getDate() &&
       resaDate.getMonth() === dateToCheck.getMonth() &&
       resaDate.getFullYear() === dateToCheck.getFullYear()
@@ -26,128 +23,195 @@ const CalendarCard = () => {
 
   return (
     <>
-      <style>
-        {`
-          /* Conteneur principal */
-          .custom-calendar { 
-            width: 100%; 
-            height: 300px;
-            background: transparent !important;
-            border: none !important;
-            font-family: inherit; 
-            color: #FAFAFA !important; 
-          }
-          
-          /* Barre + Flèches */
-          .react-calendar__navigation button {
-            color: #FAFAFA !important;
-            min-width: 44px; 
-            background: none; 
-            font-size: 1.1rem;
-            font-weight: bold;
-          }
+    <style>
+      {`
+        /* =========================================
+        1. CONFIGURATION GÉNÉRALE & NAVIGATION
+        ========================================= */
+        .custom-calendar { 
+          width: 100%; 
+          height: 100%;
+          background: transparent !important;
+          border: none !important;
+          font-family: inherit; 
+          color: #FAFAFA !important; 
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* La zone de contenu (Mois/Année/Jours) prend tout l'espace restant */
+        .react-calendar__viewContainer {
+          flex-grow: 1; 
+        }
+
+        /* Barre de Navigation (Mois 2026 ...) */
+        .react-calendar__navigation {
+          background: transparent !important;
+          border-bottom: none !important;
+          height: 40px !important;
+          margin-bottom: 10px !important;
+        }
+
+        .react-calendar__navigation button {
+          color: #FAFAFA !important;
+          min-width: 40px;
+          background: none;
+          font-size: 1.2rem !important;
+          font-weight: 500 !important;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .react-calendar__navigation__arrow {
+          font-size: 1.8rem !important;
+          font-weight: 300 !important;
+          padding-bottom: 4px;
+        }
+
+        .react-calendar__navigation button:enabled:hover,
+        .react-calendar__navigation button:enabled:focus {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          border-radius: 8px;
+        }
+
+        /* =========================================
+        2. VUE CLASSIQUE (JOURS DE LA SEMAINE & TUILES)
+        ========================================= */
         
-          .react-calendar__navigation button:enabled:hover,
-          .react-calendar__navigation button:enabled:focus {
-            background-color: #770505;
-            border-radius: 8px;
-          }
+        /* Lundi, Mardi... */
+        .react-calendar__month-view__weekdays__weekday {
+          color: #ADABAB !important; 
+          font-size: 0.75rem; 
+          text-transform: uppercase;
+          text-decoration: none !important;
+          padding-bottom: 10px;
+        }
+        .react-calendar__month-view__weekdays__weekday abbr {
+          text-decoration: none;
+          cursor: default;
+        }
 
-          /* Jour de la semaine */
-          .react-calendar__month-view__weekdays__weekday {
-            color: #ADABAB !important; 
-            font-size: 0.75rem; 
-            text-transform: uppercase;
-            text-decoration: none !important;
-          }
-          
-          .react-calendar__month-view__weekdays__weekday abbr {
-            text-decoration: none;
-            cursor: default;
-          }
+        /* Les cases des jours (1, 2, 3...) */
+        .react-calendar__tile {
+          color: #FAFAFA; 
+          background: none; 
+          text-align: center;
+          font-size: 0.9rem;
+          position: relative; 
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          height: 40px; 
+          padding: 7px 4px !important;
+        }
 
-          /* D. LES TUILES  */
-          .react-calendar__tile {
-            color: #FAFAFA; 
-            padding: 10px 6px; 
-            background: none; 
-            text-align: center;
-            font-size: 0.9rem;
-            position: relative; 
-            z-index: 1;
-          }
-          
-          /* Quand on passe la souris sur un jour */
-          .react-calendar__tile:enabled:hover,
-          .react-calendar__tile:enabled:focus {
-            background-color: #770505; 
-            border-radius: 12px; 
-          }
+        /* =========================================
+        3. VUES "ZOOM" (SÉLECTION MOIS & ANNÉES)
+        J'ai regroupé les deux vues ici car le style est identique
+        ========================================= */
 
-          /* Jour sélectionné*/
-          .react-calendar__tile--active {
-            background: #CC4040 !important; 
-            border-radius: 12px;
-            color: #FAFAFA !important;
-          }
+        /* Conteneurs (Grille) */
+        .react-calendar__year-view__months, 
+        .react-calendar__decade-view__years {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          align-content: center !important; /* Centre verticalement dans la carte */
+          height: 100%;
+          padding: 10px 0;
+        }
 
-          /* Aujourd'hui */
-          .react-calendar__tile--now {
-            background: #ADABAB !important;
-            border-radius: 12px;
-          }`}
-      </style>
+        /* Boutons (Janvier... ou 2026...) */
+        .react-calendar__year-view__months__month,
+        .react-calendar__decade-view__years__year {
+          flex: 0 0 33.3333% !important; /* 3 par ligne */
+          max-width: 33.3333% !important;
+          font-size: 1rem !important;
+          text-transform: uppercase;
+          font-weight: 600;
+          border-radius: 12px !important;
+          padding: 15px 0 !important;
+          margin-bottom: 15px !important; /* Espace entre les lignes */
+        }
 
+        /* Suppression de la marge pour les 3 derniers éléments (bas de la grille) */
+        .react-calendar__year-view__months__month:nth-last-child(-n+3),
+        .react-calendar__decade-view__years__year:nth-last-child(-n+3) {
+          margin-bottom: 0 !important;
+        }
+
+        /* =========================================
+        4. ÉTATS INTERACTIFS (HOVER, ACTIVE, NOW)
+        Applicable à toutes les tuiles (Jours, Mois, Années)
+        ========================================= */
+
+        /* Hover */
+        .react-calendar__tile:enabled:hover,
+        .react-calendar__tile:enabled:focus,
+        .react-calendar__year-view__months__month:hover,
+        .react-calendar__decade-view__years__year:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          border-radius: 12px;
+        }
+
+        /* Élément sélectionné (Rouge) */
+        .react-calendar__tile--active,
+        .react-calendar__tile--hasActive {
+          background: #CC4040 !important; 
+          border-radius: 12px;
+          color: #FAFAFA !important;
+        }
+
+        /* Aujourd'hui (Gris/Transparent) */
+        .react-calendar__tile--now {
+          background: #ADABAB !important;
+          border-radius: 12px;
+        }
+      `}
+    </style>
+
+      {/* J'ai gardé tes dimensions exactes ici */}
       <div 
         className="card border-0 shadow text-white overflow-hidden" 
         style={{ 
           backgroundColor: '#430000', 
           borderRadius: '24px', 
           width: '70%', 
-          minWidth: '300px' 
+          minWidth: '300px', 
+          height: '390px'
         }}
       >
-        <div className="card-body p-4">
+        <div className="card-body p-3"> {/* p-3 au lieu de p-1 pour aérer légèrement les bords */}
           
           {/* Header de la Card Titre + Icone */}
           <div className="d-flex align-items-center gap-2 mb-2">
-              <CalendarDays size={20} color="#ADABAB" /> 
-              <h5 className="mb-0 fw-bold" style={{ color: '#FAFAFA' }}>Calendrier</h5>
+              <CalendarDays size={18} color="#ADABAB" /> 
+              <h5 className="mb-0 fw-bold" style={{ color: '#FAFAFA', fontSize: '1.3rem' }}>Calendrier</h5>
           </div>
 
           {/* --- Le composant calendrier --- */}
           <Calendar 
-            // Quand on clique sur une date, on met à jour le State
             onChange={setDate} 
-            // La valeur affichée (le jour sélectionné)
             value={date} 
-            // On applique notre CSS perso
             className="custom-calendar"
-            // On force la langue en Français
             locale="fr-FR"
-            
-            // --- Les points ---
-            // Cette prop 'tileContent' est une fonction qui s'exécute pour CHAQUE jour affiché.
-            // Elle reçoit la date du jour en question ({ date }) et la vue ({ view }).
             tileContent={({ date, view }) => {
-              // On ne veut afficher les points que dans la vue "Mois"
-              // ET seulement si la date est dans notre tableau de réservations
               if (view === 'month' && hasReservation(date)) {
                 return (
-                  // Si c'est vrai, on injecte ce petit rond sous le chiffre
-                  <div className="d-flex justify-content-center mt-1">
+                  // Margin top réduit pour coller au chiffre
+                  <div className="mt-2">
                     <div 
                       className="rounded-circle" 
                       style={{ 
-                        width: '5px', 
-                        height: '5px', 
+                        width: '4px', 
+                        height: '4px', 
                         backgroundColor: '#FAFAFA' 
-                      }}
+                      }} 
                     />
                   </div>
                 );
               }
-              // Sinon, on n'affiche rien de plus
               return null;
             }}
           />
