@@ -40,3 +40,22 @@
   justify-content: space-between;
   align-items: center;
 }
+
+/* Effet Hover pour le bouton Ajouter */
+.btn-add-hover:hover {
+  background-color: #430000 !important; /* Le rouge bordeaux foncé */
+  transform: rotate(90deg); /* Petit effet de rotation sympa (optionnel) */
+}
+
+/* Effet Hover pour les cartes */
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+/* Couleurs M2L utilitaires (si pas déjà fait) */
+.bg-m2l-dark { background-color: #430000 !important; }
+.bg-m2l-red { background-color: #CC4040 !important; }

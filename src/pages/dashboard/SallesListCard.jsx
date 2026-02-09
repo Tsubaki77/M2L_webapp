@@ -10,9 +10,9 @@ const SallesListCard = () => {
     const fetchSalles = async () => {
       try {
         setIsLoading(true);
-        // Simulation d'appel API
+         //A changer par logique API
         await new Promise(resolve => setTimeout(resolve, 1500));
-
+       
         const mockResponse = [
           { id: 1, nom: 'Salle Stanislas', ville: 'Nancy (Siège)', note: 5, status: 'free', type: 'reunion' },
           { id: 2, nom: 'Dojo Régional', ville: 'Pont-à-Mousson', note: 4, status: 'busy', type: 'sport' },

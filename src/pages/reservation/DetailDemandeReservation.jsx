@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 const ReservationDetail = () => {
-  const { id } = useParams(); // On récupère l'ID (ex: "2")
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +16,7 @@ const ReservationDetail = () => {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500)); 
 
-      // --- 1. Simulation de la Base de Données (Copie de vos données de liste) ---
+      // A changer par logique API
       const mockDatabase = [
         { 
             id: 1, 
@@ -51,8 +51,8 @@ const ReservationDetail = () => {
         
       ];
 
-      // --- 2. Recherche de l'élément correspondant à l'ID de l'URL ---
-      // On convertit id en nombre avec parseInt car l'URL renvoie une chaîne
+      // Recherche de l'élément correspondant à l'ID de l'URL ---
+      // On convertit id en nombre avec parseInt 
       const foundItem = mockDatabase.find(item => item.id === parseInt(id));
 
       if (foundItem) {
@@ -105,23 +105,28 @@ const ReservationDetail = () => {
     <div className="d-flex flex-column h-100 overflow-hidden">
       
       {/* --- Header --- */}
-      <div className="d-flex align-items-center gap-3 mb-4 flex-shrink-0">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="btn btn-light rounded-circle border shadow-sm d-flex align-items-center justify-content-center"
-          style={{ width: '40px', height: '40px' }}
+       <div 
+            className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-1 flex-shrink-0"
+            style={{ backgroundColor: '#430000' }} 
         >
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h2 className="fs-4 fw-bold mb-0 text-dark">Détail de la demande #{request.id}</h2>
-          <span className="text-muted small">Reçue le 10/10/2024</span>
+            {/* Bouton Retour Blanc */}
+            <button 
+            onClick={() => navigate(-1)}
+            className="btn btn-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+            style={{ width: '45px', height: '45px' }}
+            >
+            <ArrowLeft size={24} color="#430000" />
+            </button>
+
+            {/* Titre en majuscules + Compteur */}
+            <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>
+            Consultez le détail de la demande de réservation # {request.id}
+            </h2>
         </div>
-      </div>
 
       <div className="row g-4 flex-grow-1 overflow-y-auto pb-4">
           
-          {/* ... Colonne Gauche ... */}
+          {/* Colonne Gauche - La demande */}
           <div className="col-lg-8">
              <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '16px' }}>
                 <div className="card-body p-4">
@@ -141,7 +146,7 @@ const ReservationDetail = () => {
                                 </div>
                             </div>
                         </div>
-                        {/* ... Reste des infos demandeur ... */}
+                        {/* Reste des infos demandeur */}
                         <div className="col-md-6">
                             <div className="d-flex gap-3">
                                 <div className="bg-light rounded-circle d-flex align-items-center justify-content-center" style={{ width: '50px', height: '50px' }}>
@@ -194,7 +199,7 @@ const ReservationDetail = () => {
             </div>
         </div>
 
-          {/* ... Colonne Droite ... */}
+          {/* Colonne Droite - La salle */}
         <div className="col-lg-4">
             <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '16px', overflow: 'hidden' }}>
                 <div className="bg-m2l-dark p-4 text-white text-center">

@@ -7,7 +7,7 @@ const ListeDemandes = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate(); 
-
+//A changer par la logique API
   useEffect(() => {
     const fetchReservations = async () => {
       setIsLoading(true);
@@ -44,24 +44,30 @@ const ListeDemandes = () => {
         <div className="alert alert-danger" role="alert">{error}</div>
       ) : (
         
+        
         <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
           
-          {/* Header Liste */}
-          <div className="bg-m2l-dark border border-secondary-subtle rounded-top-3 p-3 shadow-sm d-flex align-items-center flex-shrink-0">
+          <div 
+            className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-1 flex-shrink-0"
+            style={{ backgroundColor: '#430000' }} 
+          >
+            {/* Bouton Retour Blanc */}
             <button 
-              onClick={() => navigate(-1)} 
-              className="btn btn-light rounded-circle border shadow-sm d-flex align-items-center justify-content-center me-3"
-              style={{ width: '40px', height: '40px' }}
+              onClick={() => navigate(-1)}
+              className="btn btn-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{ width: '45px', height: '45px' }}
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={24} color="#430000" />
             </button>
-            <div className="text-white fs-5">
-              Gérez les nouvelles demandes de réservations : {requests.length}
-            </div>
+    
+            {/* Titre en majuscules + Compteur */}
+            <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>
+              Gérez les nouvelles demandes de réservation : {requests.length}
+            </h2>
           </div>
-
-          {/* Corps de Liste */}
-          <div className="bg-m2l-white border border-top-0 border-secondary-subtle rounded-bottom-3 p-3 shadow-sm flex-grow-1 overflow-y-auto">
+         
+          {/* La Liste */}
+          <div className=" p-3 flex-grow-1 overflow-y-auto">
             
             <div className="d-flex flex-column gap-3">
               {requests.map((req) => (
@@ -86,12 +92,11 @@ const ListeDemandes = () => {
                       <X size={16} /> Refuser
                     </button>
                     
-                    {/* --- BOUTON DE NAVIGATION --- */}
-                    {/* C'est ici qu'on change le lien pour aller vers le détail précis */}
+                    {/* BOUTON DE NAVIGATION */}
                     <button 
                       className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center ms-2" 
                       style={{width:'35px', height:'35px'}} 
-                      onClick={() => navigate(`/demandes/${req.id}`)} // <-- Redirige vers /demandes/1, /demandes/2, etc.
+                      onClick={() => navigate(`/demandes/${req.id}`)} // <-- Redirige vers la bonne demande.
                     >
                       <ChevronRight size={20} className="text-muted"/>
                     </button>

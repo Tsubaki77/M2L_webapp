@@ -6,7 +6,7 @@ import { CalendarDays } from 'lucide-react';
 const CalendarCard = () => {
   const [date, setDate] = useState(new Date());
 
-  // --- Simulation à remplacer par données Api ---
+  // --- Simulation à remplacer par logique Api ---
   const reservations = [
     new Date(2026, 0, 24), 
     new Date(2026, 0, 28), 
@@ -171,7 +171,6 @@ const CalendarCard = () => {
       `}
     </style>
 
-      {/* J'ai gardé tes dimensions exactes ici */}
       <div 
         className="card border-0 shadow text-white overflow-hidden" 
         style={{ 
@@ -182,7 +181,7 @@ const CalendarCard = () => {
           height: '390px'
         }}
       >
-        <div className="card-body p-3"> {/* p-3 au lieu de p-1 pour aérer légèrement les bords */}
+        <div className="card-body p-3"> 
           
           {/* Header de la Card Titre + Icone */}
           <div className="d-flex align-items-center gap-2 mb-2">
@@ -190,7 +189,7 @@ const CalendarCard = () => {
               <h5 className="mb-0 fw-bold" style={{ color: '#FAFAFA', fontSize: '1.3rem' }}>Calendrier</h5>
           </div>
 
-          {/* --- Le composant calendrier --- */}
+          {/* Le composant calendrier */}
           <Calendar 
             onChange={setDate} 
             value={date} 
@@ -199,7 +198,6 @@ const CalendarCard = () => {
             tileContent={({ date, view }) => {
               if (view === 'month' && hasReservation(date)) {
                 return (
-                  // Margin top réduit pour coller au chiffre
                   <div className="mt-2">
                     <div 
                       className="rounded-circle" 
