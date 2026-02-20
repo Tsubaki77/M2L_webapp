@@ -10,6 +10,8 @@ import Dashboard from './pages/dashboard/Dashboard';
 import ListeDemandes from './pages/reservation/ListeDemandes';
 import DetailDemandeReservation from './pages/reservation/DetailDemandeReservation.jsx';
 import MesSalles from './pages/salle/MesSalles.jsx';
+import DetailSalles from './pages/salle/DetailSalles.jsx';
+import CreerSalle from './pages/salle/CreationSalles.jsx';
 
 function App() {
   return (
@@ -24,6 +26,9 @@ function App() {
             <Route path="/demandes_en_attentes" element={<ListeDemandes />} />
             <Route path="/demandes/:id" element={<DetailDemandeReservation />} />
             <Route path="/mes_salles" element={<MesSalles />} />
+            <Route path="/salle/ajouter" element={<CreerSalle />} />
+            <Route path="/salles/:id" element={<DetailSalles />} />
+          
           </Routes>
         </main>
 

@@ -30,7 +30,7 @@ const Header = () => {
 
   return (
     <header 
-      className="sticky-top d-flex justify-content-between align-items-center px-4" 
+      className="sticky-top d-flex flex-shrink-0 justify-content-between align-items-center px-4" 
       style={{ 
         height: '80px', 
         backgroundColor: 'rgba(255, 255, 255, 0.8)',

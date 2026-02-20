@@ -1,27 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { Check, X, ChevronRight, Calendar, User, Trophy, MapPin, Loader2, ArrowLeft } from 'lucide-react';
+import { Check, X, ChevronRight, Calendar, User, Trophy, MapPin, Loader2, ArrowLeft, Clock } from 'lucide-react';
+import { requestData } from '../data/requestData'; 
 
 const ListeDemandes = () => {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate(); 
-//A changer par la logique API
+
   useEffect(() => {
     const fetchReservations = async () => {
       setIsLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 800)); 
-        setRequests([
-          { id: 1, room: 'Salle Majorelle', league: 'Ligue de Football', user: 'Jean Dupont', role: 'Coach', date: '12/10/2024 - 14:00' },
-          { id: 2, room: 'Salle Grüber', league: 'Ligue de Tennis', user: 'Marie Curry', date: '14/10/2024 - 09:00' },
-          { id: 3, room: 'Amphithéâtre', league: 'Ligue de Basket', user: 'Tony Parker', date: '20/10/2024 - 10:30' },
-          { id: 4, room: 'Salle Lamour', league: 'Ligue d\'Escrime', user: 'Laura Flessel', date: '22/10/2024 - 16:00' },
-          { id: 5, room: 'Salle 5', league: 'Ligue de Hand', user: 'Nikola Karabatic', date: '23/10/2024 - 11:00' },
-          { id: 6, room: 'Salle 6', league: 'Ligue de Volley', user: 'Earvin N\'Gapeth', date: '25/10/2024 - 15:30' },
-          { id: 7, room: 'Salle 7', league: 'Ligue de Rugby', user: 'Antoine Dupont', date: '27/10/2024 - 09:00' },
-        ]);
+        await new Promise(resolve => setTimeout(resolve, 600)); 
+        setRequests(requestData);
       } catch (err) {
         setError("Impossible de charger les demandes.");
       } finally {
@@ -34,88 +27,142 @@ const ListeDemandes = () => {
   const handleValidate = (id) => setRequests(prev => prev.filter(req => req.id !== id));
   const handleReject = (id) => setRequests(prev => prev.filter(req => req.id !== id));
 
+
+  const renderDateInfo = (req) => {
+    
+      const textStyle = "text-secondary fw-medium text-truncate";
+
+      switch(req.type) {
+          // CAS 1 : Une seule journée + Heures
+          case 'creneau':
+              return (
+                  <span className={textStyle}>
+                      {req.date} <span className="mx-2">|</span> {req.startTime} - {req.endTime}
+                  </span>
+              );
+
+          // CAS 2 : Journée entière
+          case 'fullday':
+              return (
+                  <span className={textStyle}>
+                      {req.date} <span className="mx-2">|</span> Journée entière
+                  </span>
+              );
+
+          // CAS 3 : Plusieurs jours + Heures
+          case 'multiday':
+              return (
+                  <span className={textStyle}>
+                      Du {req.startDate} au {req.endDate} <span className="mx-2">|</span> {req.startTime} - {req.endTime}
+                  </span>
+              );
+
+          // CAS 4 & 5 : Mois complet
+          case 'month':
+              return (
+                  <span className={textStyle}>
+                      Du {req.startDate} au {req.endDate} <span className="mx-2">|</span> {req.startTime ? `${req.startTime} - ${req.endTime}` : "Mois entier"}
+                  </span>
+              );
+
+          default:
+              return <span className={textStyle}>{req.date}</span>;
+      }
+  };
+
   return (
-    <div className="d-flex flex-column h-100">
-      {isLoading ? (
-        <div className="d-flex justify-content-center align-items-center flex-grow-1">
-           <Loader2 className="animate-spin" style={{color: "#CC4040"}} size={48} />
-        </div>
-      ) : error ? (
-        <div className="alert alert-danger" role="alert">{error}</div>
-      ) : (
-        
+      <div className="d-flex flex-column h-100">
+        {isLoading ? (
+            <div className="d-flex justify-content-center align-items-center flex-grow-1">
+               <Loader2 className="animate-spin" style={{color: "#CC4040"}} size={48} />
+               <style>{`.animate-spin { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+            </div>
+        ) : error ? (
+            <div className="alert alert-danger m-4" role="alert">{error}</div>
+        ) : (
         
         <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
-          
-          <div 
-            className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-1 flex-shrink-0"
-            style={{ backgroundColor: '#430000' }} 
-          >
-            {/* Bouton Retour Blanc */}
-            <button 
-              onClick={() => navigate(-1)}
-              className="btn btn-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-              style={{ width: '45px', height: '45px' }}
-            >
-              <ArrowLeft size={24} color="#430000" />
-            </button>
-    
-            {/* Titre en majuscules + Compteur */}
-            <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>
-              Gérez les nouvelles demandes de réservation : {requests.length}
-            </h2>
-          </div>
-         
-          {/* La Liste */}
-          <div className=" p-3 flex-grow-1 overflow-y-auto">
-            
-            <div className="d-flex flex-column gap-3">
-              {requests.map((req) => (
-                <div 
-                  key={req.id} 
-                  className="bg-m2l-white border border-secondary-subtle rounded-3 p-3 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3"
-                >
-                  <div className="d-flex align-items-center gap-4 flex-grow-1">
-                      <div className="row w-100 align-items-center g-3">
-                         <div className="col-md-3 fw-semibold text-dark"><MapPin size={16} className="me-2 text-danger"/>{req.room}</div>
-                         <div className="col-md-3 text-secondary"><Trophy size={16} className="me-2"/>{req.league}</div>
-                         <div className="col-md-3 text-secondary"><User size={16} className="me-2"/>{req.user}</div>
-                         <div className="col-md-3 text-secondary"><Calendar size={16} className="me-2"/>{req.date}</div>
+             
+             {/* Header */}
+             <div className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-1 flex-shrink-0" style={{ backgroundColor: '#430000' }}>
+                <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>
+                    Gérez les nouvelles demandes de réservation : {requests.length}
+                </h2>
+             </div>
+
+             {/* Liste */}
+             <div className="p-3 flex-grow-1 overflow-y-auto custom-scroll">
+                <div className="d-flex flex-column gap-3">
+                  {requests.map((req) => (
+                    <div key={req.id} className="bg-white border border-secondary-subtle rounded-3 p-3 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
+                      
+                      {/* BLOC INFORMATIONS (Aligné sur une seule ligne) */}
+                      <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                          <div className="row w-100 align-items-center m-0 text-nowrap">
+                             
+                             {/* 1. NOM DE LA SALLE */}
+                             <div className="col-3 d-flex align-items-center ps-0 overflow-hidden">
+                                 <MapPin size={18} className="me-2 text-danger flex-shrink-0"/>
+                                 <span className="text-secondary text-uppercase text-truncate" title={req.roomName}>
+                                    {req.roomName}
+                                 </span>
+                             </div>
+                             
+                             {/* 2. LIGUE */}
+                             <div className="col-2 d-flex align-items-center text-secondary border-start ps-3 overflow-hidden">
+                                 <Trophy size={18} className="me-2 flex-shrink-0"/>
+                                 <span className="text-truncate fw-medium">{req.league}</span>
+                             </div>
+                             
+                             {/* 3. NOM PERSONNE */}
+                             <div className="col-2 d-flex align-items-center text-secondary border-start ps-3 overflow-hidden">
+                                 <User size={18} className="me-2 flex-shrink-0"/>
+                                 <span className="text-truncate fw-medium">{req.user}</span>
+                             </div>
+                             
+                             {/* 4. DATE ET CRÉNEAU */}
+                             <div className="col-5 d-flex align-items-center border-start ps-3 overflow-hidden">
+                                 <Calendar size={18} className="me-2 text-secondary flex-shrink-0"/>
+                                 {renderDateInfo(req)}
+                             </div>
+
+                          </div>
                       </div>
-                  </div>
+                      
+                      {/* BLOC BOUTONS (À droite) */}
+                      <div className="d-flex align-items-center gap-2 border-start ps-3 py-1 flex-shrink-0">
+                        <button onClick={(e) => { e.stopPropagation(); handleValidate(req.id); }} className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold transition-all hover-scale">
+                             <Check size={16} /> VALIDER
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold transition-all hover-scale">
+                             <X size={16} /> REFUSER
+                        </button>
+                        <button 
+                            className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center ms-2 shadow-sm" 
+                            style={{width:'35px', height:'35px'}} 
+                            onClick={() => navigate(`/demandes/${req.id}`)}
+                        >
+                           <ChevronRight size={20} className="text-muted"/>
+                        </button>
+                      </div>
 
-                  <div className="d-flex align-items-center gap-2 border-start ps-3 py-1">
-                    <button onClick={(e) => { e.stopPropagation(); handleValidate(req.id); }} className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-3 rounded-pill">
-                      <Check size={16} /> Valider
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 rounded-pill">
-                      <X size={16} /> Refuser
-                    </button>
-                    
-                    {/* BOUTON DE NAVIGATION */}
-                    <button 
-                      className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center ms-2" 
-                      style={{width:'35px', height:'35px'}} 
-                      onClick={() => navigate(`/demandes/${req.id}`)} // <-- Redirige vers la bonne demande.
-                    >
-                      <ChevronRight size={20} className="text-muted"/>
-                    </button>
-                    
-                  </div>
+                    </div>
+                  ))}
+
+                  {requests.length === 0 && (
+                      <div className="text-center py-5 text-muted">
+                          <p className="fs-5">Aucune demande en attente.</p>
+                      </div>
+                  )}
                 </div>
-              ))}
-
-              {requests.length === 0 && (
-                  <div className="text-center py-5 text-muted">
-                      <p>Aucune demande en attente.</p>
-                  </div>
-              )}
-            </div>
-          </div>
-
+             </div>
         </div>
-      )}
-    </div>
+        )}
+        
+        <style>{`
+            .hover-scale:hover { transform: scale(1.05); }
+        `}</style>
+      </div>
   );
 };
 

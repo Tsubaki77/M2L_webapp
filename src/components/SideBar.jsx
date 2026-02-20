@@ -68,7 +68,7 @@ const Sidebar = () => {
             // A remplacer par la logique de déconnexion
             console.log('Déconnexion');
           }}
-          className="bg-transparent border-0 p-0" // Pour enlever le style par défaut du bouton
+          className="bg-transparent border-0 p-0" 
           style={{
             cursor: 'pointer',
             transition: 'color 0.3s ease',

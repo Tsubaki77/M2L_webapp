@@ -109,7 +109,7 @@ const CalendarCard = () => {
 
         /* =========================================
         3. VUES "ZOOM" (SÉLECTION MOIS & ANNÉES)
-        J'ai regroupé les deux vues ici car le style est identique
+    
         ========================================= */
 
         /* Conteneurs (Grille) */
