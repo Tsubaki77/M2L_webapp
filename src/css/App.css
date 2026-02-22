@@ -11,6 +11,9 @@
   transition: filter 300ms;
 }
 
+.force-normal-case {
+  text-transform: none !important;
+}
 
 @keyframes logo-spin {
   from {

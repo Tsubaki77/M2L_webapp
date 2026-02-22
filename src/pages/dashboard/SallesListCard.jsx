@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, ChevronRight, Building2, Loader2, AlertCircle, Star, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; 
-// IMPORT DES DONNÉES
+
+// 1. IMPORT DES DONNÉES
 import { sallesData } from '../data/salleData'; 
 
 const SallesListCard = () => {
-  const [salles, setSalles] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // --- ÉTATS (STATES) ---
+  const [salles, setSalles] = useState([]); // Ma liste de salles
+  const [isLoading, setIsLoading] = useState(true); // État de chargement
+  const [error, setError] = useState(null); // Gestion des erreurs
   const navigate = useNavigate(); 
 
+  // 2. SIMULATION APPEL API
   useEffect(() => {
     const fetchSalles = async () => {
       try {
         setIsLoading(true);
-        // Simulation API rapide
+        // On simule une attente de 600ms pour faire "vrai" appel réseau (à voir avec backend plus tard)
         await new Promise(resolve => setTimeout(resolve, 600)); 
         setSalles(sallesData);
       } catch (err) {
@@ -26,6 +29,7 @@ const SallesListCard = () => {
     fetchSalles();
   }, []);
 
+  // 3. SYSTÈME DE NOTATION (ÉTOILES)
   const renderStars = (note) => {
     return (
       <div className="d-flex align-items-center">
@@ -33,6 +37,7 @@ const SallesListCard = () => {
           <Star 
             key={index} 
             size={12} 
+            // Si l'index est < note, on remplit l'étoile en rouge M2L
             fill={index < note ? "#CC4040" : "none"} 
             color={index < note ? "#CC4040" : "#ADABAB"}
             style={{ marginRight: '2px' }}
@@ -50,26 +55,22 @@ const SallesListCard = () => {
       >
         <div className="card-body d-flex flex-column h-100">
           
+          {/* HEADER : Titre + Badge compteur dynamique */}
           <div className="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
             <div>
               <h5 className="fw-bold mb-0" style={{ color: '#430000', fontSize: '1.3rem' }}>Mes Salles</h5>
               <p className="small mb-0" style={{ color: '#848181', fontSize: '1rem' }}>Espaces gérés</p>
             </div>
+            
             {!isLoading && !error && (
               <span 
                 className="badge rounded-pill shadow-sm hover-scale" 
-                onClick={() => navigate('/mes_salles')} // 3. Clic sur le compteur -> Liste complète
+                onClick={() => navigate('/mes_salles')} // Redirection vers liste complète
                 style={{ 
                     backgroundColor: '#ADABAB', 
-                    color: '#FFF', 
-                    width: '32px', 
-                    height: '32px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '1rem',
-                    cursor: 'pointer', // Curseur main
-                    transition: 'transform 0.2s'
+                    width: '32px', height: '32px', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    cursor: 'pointer', transition: 'transform 0.2s'
                 }}
                 title="Voir toutes mes salles"
               >
@@ -78,14 +79,15 @@ const SallesListCard = () => {
             )}
           </div>
 
+          {/* 4. ÉTAT CHARGEMENT (Loader tournant) */}
           {isLoading && (
             <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-muted">
               <Loader2 size={32} className="spin-animation mb-2" style={{ color: '#CC4040' }} />
-              <style>{`.spin-animation { animation: spin 1s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
               <p className="small">Chargement...</p>
             </div>
           )}
 
+          {/* 5. ÉTAT ERREUR */}
           {error && (
             <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-danger">
               <AlertCircle size={32} className="mb-2" />
@@ -93,46 +95,46 @@ const SallesListCard = () => {
             </div>
           )}
 
+          {/* 6. LISTE DES SALLES (Scrollable) */}
           {!isLoading && !error && (
-            <div className="d-flex flex-column gap-3 custom-scroll flex-grow-1" style={{ overflowY: 'auto', paddingRight: '5px', minHeight: 0 }}>
+            <div className="d-flex flex-column gap-3 custom-scroll flex-grow-1" style={{ overflowY: 'auto', paddingRight: '5px' }}>
               {salles.map((salle) => (
                 <div 
                     key={salle.id} 
                     className="p-3 rounded-3 border-0 shadow-sm d-flex align-items-center justify-content-between hover-bg-light transition-all" 
-                    onClick={() => navigate(`/salles/${salle.id}`)} // 4. Clic sur la carte -> Détail salle
-                    style={{ 
-                        backgroundColor: '#FFFFFF', 
-                        cursor: 'pointer' 
-                    }}
+                    onClick={() => navigate(`/salles/${salle.id}`)} // Go vers fiche salle
+                    style={{ backgroundColor: '#FFFFFF', cursor: 'pointer' }}
                 >
                   <div className="d-flex align-items-center gap-3" style={{ minWidth: 0 }}>
                     <div className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style={{ width: '40px', height: '40px', backgroundColor: '#FAFAFA', color: '#430000' }}>
                       {salle.type === 'sport' ? <Trophy size={18} /> : <Building2 size={18} />}
                     </div>
-                    <div style={{ minWidth: 0, flex: 1 }}> 
-                      <h6 className="fw-bold mb-1 text-dark text-truncate" title={salle.nom}>{salle.nom}</h6>
+                    
+                    <div className="text-truncate"> 
+                      <h6 className="fw-bold mb-1 text-dark text-truncate">{salle.nom}</h6>
                       <div className="d-flex flex-column gap-1">
-                        <div className="d-flex align-items-center text-secondary small text-truncate">
-                           <MapPin size={12} className="me-1 flex-shrink-0" />
+                        <div className="d-flex align-items-center text-secondary small">
+                           <MapPin size={12} className="me-1" />
                            <span className="text-truncate">{salle.ville}</span>
                         </div>
+                        {/* Appel du système d'étoiles */}
                         <div>{renderStars(salle.note)}</div>
                       </div>
                     </div>
                   </div>
-                  <div className="ps-2">
-                      <ChevronRight size={16} style={{ color: '#ADABAB' }} />
-                  </div>
+                  <ChevronRight size={16} style={{ color: '#ADABAB' }} />
                 </div>
               ))}
             </div>
           )}
         </div>
         
-        {/* Styles pour l'animation et le scroll */}
+        {/* CSS Interne pour les animations du loader et du survol */}
         <style>{`
+            .spin-animation { animation: spin 1s linear infinite; }
+            @keyframes spin { 100% { transform: rotate(360deg); } }
             .hover-scale:hover { transform: scale(1.1); background-color: #999 !important; }
-            .hover-bg-light:hover { background-color: #f8f9fa !important; transform: translateX(3px); transition: transform 0.2s ease; }
+            .hover-bg-light:hover { transform: translateX(3px); transition: all 0.2s ease; }
         `}</style>
       </div>
   );
