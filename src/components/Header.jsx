@@ -17,13 +17,13 @@ const Header = () => {
     '/parametres': 'Paramètres'
   };
 
-  const user = api.getUser();
+  const admin = api.getAdmins();
 
-  const getInitials = (user) => {
-    if (!user || !user.nom || !user.prenom) return "??";
+  const getInitials = (admin) => {
+    if (!admin || !admin.nom || !admin.prenom) return "??";
     
-    const firstLetter = user.prenom.charAt(0).toUpperCase();
-    const twoLettersNom = user.nom.substring(0, 2).toUpperCase();
+    const firstLetter = admin.prenom.charAt(0).toUpperCase();
+    const twoLettersNom = admin.nom.substring(0, 2).toUpperCase();
     
     return firstLetter + twoLettersNom; // Retourne "CGH"
   };
@@ -75,7 +75,7 @@ const Header = () => {
             style={{ width: '40px', height: '40px' }}
           >
             {/* TODO : Quand l'API sera branchée, remplacer "CG" par les initiales du user connecté */}
-            <span className="text-dark fw-bold">{getInitials(user)}</span>
+            <span className="text-dark fw-bold">{getInitials(admin)}</span>
           </div>
 
         </div>

@@ -83,7 +83,7 @@ export const api = {
   // ---------------------------------------------------------
   // 3. GESTION DES ADMINS 
   // ---------------------------------------------------------
-
+  
   getAdmins: async () => {
     const res = await api.request('/api/admins');
     return res.json();
