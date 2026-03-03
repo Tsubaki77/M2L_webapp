@@ -6,7 +6,9 @@ import { Plus, MapPin, Star, Trophy, Briefcase, ChevronRight, ArrowLeft } from '
 
 import { sallesData } from '../data/salleData'; 
 
+
 const MesSalles = () => {
+
   const navigate = useNavigate();
   
   // 1. ÉTAT DU FILTRE

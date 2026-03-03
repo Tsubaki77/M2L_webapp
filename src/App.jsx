@@ -1,12 +1,12 @@
 import React from 'react';
-// 1. Ajoute useLocation à l'import
-import { Routes, Route, useLocation } from 'react-router-dom'; 
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/index.css';
 import './css/App.css';
 
 import Sidebar from './components/SideBar';
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute'; 
 import Dashboard from './pages/dashboard/Dashboard';
 import ListeDemandes from './pages/reservation/ListeDemandes';
 import DetailDemandeReservation from './pages/reservation/DetailDemandeReservation.jsx';
@@ -18,41 +18,40 @@ import MdpOublie from './pages/login/MdpOublie.jsx';
 import Calendrier from './pages/calendrier/Calendrier.jsx';
 
 function App() {
-  // 2. Récupère le chemin actuel
   const location = useLocation();
   
-  // 3. Crée une variable qui vaut 'true' si on est sur la page login OU mot de passe oublié
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/forget-password';;
+  // On définit les pages "publiques"
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/forget-password';
 
   return (
     <div className="d-flex" style={{ height: '100vh', overflow: 'hidden', backgroundColor: '#eef2f6' }}>
       
-      {/* 4. Affiche la Sidebar UNIQUEMENT si on n'est PAS sur le login ou mot de passe oublié */}
       {!isAuthPage && <Sidebar />}
       
       <div className="flex-grow-1 d-flex flex-column" style={{ marginLeft: isAuthPage ? '0px' : '260px' }}>
         
-        {/* 5. Affiche le Header UNIQUEMENT si on n'est PAS sur le login ou mot de passe oublié */}
         {!isAuthPage && <Header />}
         
         <main className="flex-grow-1 p-1" style={{ overflow: 'hidden' }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/demandes_en_attentes" element={<ListeDemandes />} />
-            <Route path="/demandes/:id" element={<DetailDemandeReservation />} />
-            <Route path="/mes_salles" element={<MesSalles />} />
-            <Route path="/salle/ajouter" element={<CreerSalle />} />
-            <Route path="/salles/:id" element={<DetailSalles />} />
-            <Route path="/calendrier" element={<Calendrier />} />
-            
-            {/* Ta route Login */}
+            {/* --- ROUTES PUBLIQUES --- */}
             <Route path='/login' element={<Login />} />
             <Route path='/forget-password' element={<MdpOublie />} />
+
+            {/* --- ROUTES PROTÉGÉES --- */}
+            {/* On entoure chaque page privée par ProtectedRoute */}
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/demandes_en_attentes" element={<ProtectedRoute><ListeDemandes /></ProtectedRoute>} />
+            <Route path="/demandes/:id" element={<ProtectedRoute><DetailDemandeReservation /></ProtectedRoute>} />
+            <Route path="/mes_salles" element={<ProtectedRoute><MesSalles /></ProtectedRoute>} />
+            <Route path="/salle/ajouter" element={<ProtectedRoute><CreerSalle /></ProtectedRoute>} />
+            <Route path="/salles/:id" element={<ProtectedRoute><DetailSalles /></ProtectedRoute>} />
+            <Route path="/calendrier" element={<ProtectedRoute><Calendrier /></ProtectedRoute>} />
             
-            <Route path="*" element={<div className="text-center mt-5"><h2>Page non trouvée</h2></div>} />          
+            {/* Redirection automatique si l'URL est inconnue */}
+            <Route path="*" element={<Navigate to="/" replace />} />           
           </Routes>
         </main>
-
       </div>
     </div>
   );

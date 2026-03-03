@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Check } from 'lucide-react'; 
+import { Eye, EyeOff, Check, Loader2 } from 'lucide-react'; 
+import { api } from '../../utils/api'; // Import de ton outil API
 
 const Login = () => {
   const navigate = useNavigate();
   
   // --- 1. ÉTATS (STATES) ---
-  const [identifiant, setIdentifiant] = useState(''); // Stocke ce que l'utilisateur tape (admin)
-  const [password, setPassword] = useState('');       // Stocke le mot de passe (admin)
+  const [identifiant, setIdentifiant] = useState(''); // Stocke ce que l'utilisateur tape dans le champ identifiant 
+  const [password, setPassword] = useState('');       // Stocke le mot de passe
   const [showPassword, setShowPassword] = useState(false); // Switch pour voir/cacher le mot de passe
   const [error, setError] = useState(''); // Stocke le message d'erreur si le login échoue
+  const [isLoading, setIsLoading] = useState(false); // État pour le chargement pendant l'appel API
 
   // --- 2. LOGIQUE DE CONNEXION ---
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault(); // Empêche le rechargement de la page au clic sur le bouton
     
     // Sécurité : on vérifie que les champs ne sont pas vides
@@ -21,13 +23,23 @@ const Login = () => {
       return;
     }
 
-    // --- LOGIQUE MOCKÉE (TEMPORAIRE) ---
-    // Tant qu'on n'a pas de Backend, on simule un compte admin
-    if (identifiant === 'admin' && password === 'admin') {
+    try {
+      setError(''); // On réinitialise l'erreur avant de tenter
+      setIsLoading(true); // On lance le chargement
+
+      // --- LOGIQUE API REELLE ---
+      // On utilise notre outil api.js pour envoyer les données à Symfony
+      await api.login(identifiant, password);
+      
+      // Login a réussi !
       navigate('/'); // Redirige vers le Dashboard
-    } else {
-      // Si les identifiants sont faux, on déclenche l'affichage du message d'erreur
+      
+    } catch (err) {
+      // Si l'identifiant ou mdp est faux, ou si le serveur est éteint
       setError("L'identifiant ou le mot de passe est incorrect"); 
+      console.error("Erreur de connexion:", err);
+    } finally {
+      setIsLoading(false); // On arrête le chargement, quoi qu'il arrive
     }
   };
 
@@ -65,6 +77,7 @@ const Login = () => {
                 placeholder="Identifiant"
                 value={identifiant} 
                 onChange={(e) => setIdentifiant(e.target.value)} 
+                disabled={isLoading} // On bloque pendant le chargement
               />
               <label htmlFor="identifiant" className="text-muted">Identifiant</label>
             </div>
@@ -78,15 +91,17 @@ const Login = () => {
                 placeholder="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
               <label htmlFor="password" className="text-muted">Mot de passe</label>
               
-              {/* Bouton absolu pour switcher entre Eye et EyeOff */}
+              {/* Bouton pour switche entre Eye et EyeOff */}
               <button 
                 type="button" 
                 className="btn position-absolute top-50 end-0 translate-middle-y text-muted border-0 shadow-none"
                 onClick={() => setShowPassword(!showPassword)}
                 style={{ zIndex: 5 }}
+                disabled={isLoading}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -99,23 +114,22 @@ const Login = () => {
               </Link>
             </div>
 
-            <div className="mb-4">
-              <div className="form-check">
-                <input type="checkbox" className="form-check-input border-secondary" id="checkbox-signin" />
-                <label className="form-check-label text-secondary small fw-medium" htmlFor="checkbox-signin">
-                  Se souvenir de moi
-                </label>
-              </div>
-            </div>
-
             {/* Bouton de validation (Couleur Rouge M2L) */}
             <div className="d-grid mb-4">
               <button 
-                className="btn text-white fw-bold py-2 shadow-sm" 
+                className="btn text-white fw-bold py-2 shadow-sm d-flex justify-content-center align-items-center gap-2" 
                 type="submit"
                 style={{ backgroundColor: '#CC4040' }}
+                disabled={isLoading} // Désactivé si en cours de chargement
               >
-                Log In
+                {isLoading ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" /> {/* Spinner de chargement */}
+                    Connexion...
+                  </>
+                ) : (
+                  'Log In'
+                )}
               </button>
             </div>
           </form>
@@ -132,7 +146,6 @@ const Login = () => {
           backgroundPosition: 'center'
         }}
       >
-        {/* Overlay sombre pour que le texte blanc ressorte bien sur l'image */}
         <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75"></div>
         
         {/* Contenu Suplémentaire */}

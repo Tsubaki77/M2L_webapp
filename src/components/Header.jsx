@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { api } from '../utils/api';
 
 const Header = () => {
   // 1. Je récupère l'URL de la page actuelle 
@@ -14,6 +15,17 @@ const Header = () => {
     '/calendrier': 'Calendrier des réservations',
     '/chat': 'Chat',
     '/parametres': 'Paramètres'
+  };
+
+  const user = api.getUser();
+
+  const getInitials = (user) => {
+    if (!user || !user.nom || !user.prenom) return "??";
+    
+    const firstLetter = user.prenom.charAt(0).toUpperCase();
+    const twoLettersNom = user.nom.substring(0, 2).toUpperCase();
+    
+    return firstLetter + twoLettersNom; // Retourne "CGH"
   };
 
   // 3. Cherche si l'URL exacte est dans mon dico au-dessus
@@ -63,7 +75,7 @@ const Header = () => {
             style={{ width: '40px', height: '40px' }}
           >
             {/* TODO : Quand l'API sera branchée, remplacer "CG" par les initiales du user connecté */}
-            <span className="text-dark fw-bold">CG</span>
+            <span className="text-dark fw-bold">{getInitials(user)}</span>
           </div>
 
         </div>

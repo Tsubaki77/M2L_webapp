@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { api } from '../utils/api';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, CalendarDays, MessageSquareMore, Dumbbell, LogOut, ListTodo } from 'lucide-react';
 
 const Sidebar = () => {
@@ -13,6 +14,15 @@ const Sidebar = () => {
     { name: 'Calendrier', path: '/calendrier', icon: <CalendarDays size={24} /> },
     { name: 'Chat', path: '/chat', icon: <MessageSquareMore size={24} /> },
   ];
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // On appelle la fonction logout de notre fichier api.js
+    api.logout();
+    // La redirection se fera automatiquement via api.js ou tu peux ajouter :
+    // navigate('/login');
+  };
 
   return (
     <aside 
@@ -40,8 +50,6 @@ const Sidebar = () => {
             className="d-flex align-items-center gap-3 px-3 py-3 rounded-3 text-decoration-none"
             
             // Le NavLink : Si l'URL actuelle correspond à 'item.path'
-            // isActive = true -> Fond bordeaux, texte blanc
-            // isActive = false -> Fond transparent, texte rouge M2L
             style={({ isActive }) => ({
               cursor: 'pointer',
               transition: 'all 0.3s ease',
@@ -57,19 +65,21 @@ const Sidebar = () => {
 
       {/* 5. Bas de la sidebar (Déconnexion) */}
       <div className="d-flex justify-content-between align-items-center px-4 mb-4">
-        {/* Bouton Déconnexion (<button> normal car c'est pas une page, c'est une action) */}
+        {/* Bouton Déconnexion */}
         <button 
           title="Déconnexion"
           onClick={() => {
-            // TODO : Ajouter la vraie fonction logout() ici (vider le token, rediriger vers /login, etc.)
-            console.log('Déconnexion');
+            // On appelle la fonction qui vide le localStorage et redirige
+            api.logout(); 
           }}
-          className="bg-transparent border-0 p-0" 
+          className="bg-transparent border-0 p-0 logout-btn" 
           style={{
             cursor: 'pointer',
             transition: 'color 0.3s ease',
             color: '#848181', 
           }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#CC4040'} 
+          onMouseLeave={(e) => e.currentTarget.style.color = '#848181'}
         >
           <LogOut size={24} />
         </button>
