@@ -12,7 +12,7 @@ const Sidebar = () => {
     { name: 'Les Demandes', path: '/demandes_en_attentes', icon: <ListTodo size={24} /> },
     { name: 'Mes Salles', path: '/mes_salles', icon: <Dumbbell size={24} /> },
     { name: 'Calendrier', path: '/calendrier', icon: <CalendarDays size={24} /> },
-    { name: 'Chat', path: '/chat', icon: <MessageSquareMore size={24} /> },
+    
   ];
 
   const navigate = useNavigate();

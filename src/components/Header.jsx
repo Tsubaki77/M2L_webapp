@@ -13,7 +13,7 @@ const Header = () => {
     '/demandes_en_attentes': 'Demandes en attente',
     '/mes_salles': 'Mes Salles',
     '/calendrier': 'Calendrier des réservations',
-    '/chat': 'Chat',
+   
     '/parametres': 'Paramètres'
   };
 
