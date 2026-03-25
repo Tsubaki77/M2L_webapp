@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/index.css';
-import './css/App.css';
 
 import Sidebar from './components/SideBar';
 import Header from './components/Header';
