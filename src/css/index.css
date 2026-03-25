@@ -1,56 +1,435 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@300;400;500;600;700&display=swap');
 
+/* ============================================================
+   GLOBAL
+   ============================================================ */
 
-/* On applique la police partout */
 body {
   font-family: 'Bebas Neue', sans-serif;
-  background-color: #FAFAFA; 
+  background-color: #FAFAFA;
   margin: 0;
 }
 
 :root {
-  /* --- Définition des variables de couleurs --- */
-  --m2l-red:       #CC4040;  /* Rouge principal */
-  --m2l-dark-red:  #430000;  /* Bordeaux sombre */
-  --m2l-grey:      #ADABAB;  /* Gris argenté */
-  --m2l-white:     #FFFFFF;  /* Blanc */
+  --m2l-red:      #CC4040;
+  --m2l-dark-red: #430000;
+  --m2l-grey:     #ADABAB;
+  --m2l-white:    #FFFFFF;
 }
 
-.bg-m2l-red {
-  background-color: var(--m2l-red) !important;
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
 }
 
-.bg-m2l-dark {
-  background-color: var(--m2l-dark-red) !important;
-}
+/* ============================================================
+   UTILITAIRES COULEURS
+   ============================================================ */
 
-.bg-m2l-grey {
-  background-color: var(--m2l-grey) !important;
-}
+.bg-m2l-red   { background-color: var(--m2l-red)      !important; }
+.bg-m2l-dark  { background-color: var(--m2l-dark-red) !important; }
+.bg-m2l-grey  { background-color: var(--m2l-grey)     !important; }
+.bg-m2l-white { background-color: var(--m2l-white)    !important; }
 
-.bg-m2l-white {
-  background-color: var(--m2l-white) !important;
-}
+.force-normal-case { text-transform: none !important; }
 
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar       { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Scrollbar styles (si pas déjà dans index.css) */
-.custom-scroll::-webkit-scrollbar { width: 6px; }
+.custom-scroll::-webkit-scrollbar       { width: 6px; }
 .custom-scroll::-webkit-scrollbar-track { background: transparent; }
 .custom-scroll::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
 .custom-scroll::-webkit-scrollbar-thumb:hover { background: #848181; }
+
+/* ============================================================
+   LAYOUT GÉNÉRAL
+   ============================================================ */
+
+.sticky-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ============================================================
+   CARTES
+   ============================================================ */
+
+.card { padding: 1em; }
+
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ============================================================
+   BOUTON SMART ADD (+)
+   ============================================================ */
+
+.btn-smart-add {
+  width: 50px;
+  height: 50px;
+  border-radius: 50px !important;
+  background-color: var(--m2l-red);
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.4s ease-in-out, background-color 0.3s;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.btn-smart-add:hover {
+  width: 190px;
+  background-color: var(--m2l-dark-red);
+}
+.btn-smart-add .icon-plus {
+  transition: transform 0.4s ease-in-out;
+  flex-shrink: 0;
+}
+.btn-smart-add:hover .icon-plus { transform: rotate(90deg); }
+
+.btn-smart-add .btn-text {
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  margin-left: 0;
+  transition: all 0.3s ease-in-out;
+}
+.btn-smart-add:hover .btn-text {
+  max-width: 150px;
+  opacity: 1;
+  margin-left: 10px;
+}
+
+/* ============================================================
+   BOUTON LEARN MORE
+   ============================================================ */
+
+button.learn-more {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  border: 0;
+  vertical-align: middle;
+  text-decoration: none;
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  width: 100%;
+  height: auto;
+}
+button.learn-more .circle {
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+  position: relative;
+  display: block;
+  margin: 0;
+  width: 3rem;
+  height: 3rem;
+  background: var(--m2l-red);
+  border-radius: 1.625rem;
+}
+button.learn-more .circle .icon {
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  background: #fff;
+}
+button.learn-more .circle .icon.arrow {
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+  left: 0.625rem;
+  width: 1.125rem;
+  height: 0.125rem;
+  background: none;
+}
+button.learn-more .circle .icon.arrow::before {
+  position: absolute;
+  content: '';
+  top: -0.29rem;
+  right: 0.0625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-top: 0.125rem solid #fff;
+  border-right: 0.125rem solid #fff;
+  transform: rotate(45deg);
+}
+button.learn-more .button-text {
+  transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem 0;
+  margin: 0 0 0 1.85rem;
+  color: var(--m2l-red);
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: uppercase;
+}
+button.learn-more:hover .circle             { width: 100%; }
+button.learn-more:hover .circle .icon.arrow { background: #fff; transform: translate(1rem, 0); }
+button.learn-more:hover .button-text        { color: #fff; }
+
+/* ============================================================
+   BOUTON EDIT (PLUME)
+   ============================================================ */
+
+.editBtn-mixed {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background-color: #5d5d74;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 25px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.text-content {
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+.svg-pen {
+  height: 18px;
+  fill: white;
+  position: absolute;
+  right: 25px;
+  z-index: 3;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.editBtn-mixed::after {
+  content: '';
+  width: 35px;
+  height: 2px;
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  background-color: white;
+  border-radius: 2px;
+  z-index: 2;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease-in-out;
+}
+.editBtn-mixed:hover .text-content    { opacity: 0; transform: translateX(-20px); }
+.editBtn-mixed:hover .svg-pen         { right: 50%; transform: translateX(50%) rotate(-15deg) scale(1.1); }
+.editBtn-mixed:hover::after           { transform: translateX(-50%) scaleX(1); transition-delay: 0.2s; }
+.editBtn-mixed:active                 { transform: scale(0.97); background-color: #4b4b5e; }
+
+/* ============================================================
+   PAGE LOGIN
+   ============================================================ */
+
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+/* Panneau gauche : formulaire */
+.login-form-panel {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0.5rem 0 1.5rem rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 450px;
+  z-index: 10;
+  overflow-y: auto;
+}
+
+.login-form-inner {
+  padding: 2.5rem;
+  margin: auto;
+  width: 100%;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.login-logo img {
+  max-width: 160px;
+  height: auto;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.login-subtitle {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+
+/* Message d'erreur */
+.login-error {
+  background-color: #f8d7da;
+  color: #842029;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Inputs */
+.login-input {
+  background-color: #f8f9fa !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.login-input:focus {
+  background-color: #f1f3f5 !important;
+}
+
+/* Bouton toggle mot de passe */
+.login-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: #6c757d;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0;
+  line-height: 1;
+}
+.login-toggle-password:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Lien mot de passe oublié */
+.login-forgot-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-decoration: none;
+}
+.login-forgot-link:hover { color: var(--m2l-red); }
+
+/* Bouton de soumission */
+.login-submit-btn {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: var(--m2l-red);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.login-submit-btn:hover:not(:disabled) { background-color: var(--m2l-dark-red); }
+.login-submit-btn:disabled             { opacity: 0.7; cursor: not-allowed; }
+
+/* Spinner animation */
+.login-spinner { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Panneau droit : visuel */
+.login-visual-panel {
+  flex-grow: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 3rem;
+  background-color: var(--m2l-dark-red);
+  background-image: url('assets/estetic/loginimg.png');
+  background-size: cover;
+  background-position: center;
+}
+@media (min-width: 768px) {
+  .login-visual-panel { display: flex; }
+}
+
+.login-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.login-visual-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  max-width: 600px;
+}
+
+.login-visual-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.login-visual-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.75;
+  margin-bottom: 2.5rem;
+}
+
+/* Liste de fonctionnalités */
+.login-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.login-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.login-feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--m2l-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

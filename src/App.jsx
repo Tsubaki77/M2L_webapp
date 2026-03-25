@@ -32,7 +32,7 @@ function App() {
         
         {!isAuthPage && <Header />}
         
-        <main className="flex-grow-1 p-1" style={{ overflow: 'hidden' }}>
+        <main className="flex-grow-1" style={{ overflow: 'hidden' }}>
           <Routes>
             {/* --- ROUTES PUBLIQUES --- */}
             <Route path='/login' element={<Login />} />
