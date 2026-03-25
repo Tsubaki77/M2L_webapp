@@ -17,15 +17,13 @@ const Header = () => {
     '/parametres': 'Paramètres'
   };
 
-  const admin = api.getAdmins();
+ const currentUser = api.getUser();
 
-  const getInitials = (admin) => {
-    if (!admin || !admin.nom || !admin.prenom) return "??";
+  const getIdentifiant = (user) => {
+    // On vérifie si l'utilisateur existe bien
+    if (!user || !user.identifiant) return '??';
     
-    const firstLetter = admin.prenom.charAt(0).toUpperCase();
-    const twoLettersNom = admin.nom.substring(0, 2).toUpperCase();
-    
-    return firstLetter + twoLettersNom; // Retourne "CGH"
+    return user.identifiant;
   };
 
   // 3. Cherche si l'URL exacte est dans mon dico au-dessus
@@ -75,7 +73,7 @@ const Header = () => {
             style={{ width: '40px', height: '40px' }}
           >
             {/* TODO : Quand l'API sera branchée, remplacer "CG" par les initiales du user connecté */}
-            <span className="text-dark fw-bold">{getInitials(admin)}</span>
+            <span className="text-dark fw-bold">{getIdentifiant(currentUser)}</span>
           </div>
 
         </div>

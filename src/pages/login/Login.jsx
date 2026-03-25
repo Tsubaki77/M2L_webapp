@@ -24,22 +24,30 @@ const Login = () => {
     }
 
     try {
-      setError(''); // On réinitialise l'erreur avant de tenter
-      setIsLoading(true); // On lance le chargement
+      setError('');
+      setIsLoading(true);
 
-      // --- LOGIQUE API REELLE ---
-      // On utilise notre outil api.js pour envoyer les données à Symfony
+      // 1. On tente la connexion → stocke le token en sessionStorage
       await api.login(identifiant, password);
-      
-      // Login a réussi !
-      navigate('/'); // Redirige vers le Dashboard
-      
+
+      // 2. On décode le token et on récupère l'utilisateur
+      const user = api.getUser();
+
+      // 3. On vérifie qu'il a bien le rôle gestionnaire
+      if (!user || !user.roles.includes('ROLE_GESTIONNAIRE')) {
+      sessionStorage.removeItem('m2l_token'); // on vire le token sans rediriger
+      setError("Accès refusé : vous n'êtes pas gestionnaire.");
+      return;
+      }
+
+      // 4. Tout est bon on redirige
+      navigate('/');
+
     } catch (err) {
-      // Si l'identifiant ou mdp est faux, ou si le serveur est éteint
-      setError("L'identifiant ou le mot de passe est incorrect"); 
+      setError("L'identifiant ou le mot de passe est incorrect");
       console.error("Erreur de connexion:", err);
     } finally {
-      setIsLoading(false); // On arrête le chargement, quoi qu'il arrive
+      setIsLoading(false);
     }
   };
 

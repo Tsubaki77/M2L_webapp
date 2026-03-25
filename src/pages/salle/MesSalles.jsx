@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, MapPin, Star, Trophy, Briefcase, ChevronRight, ArrowLeft } from 'lucide-react';
-
+import { api } from '../../utils/api';
 
 
 import { sallesData } from '../data/salleData'; 
 
 
 const MesSalles = () => {
-
   const navigate = useNavigate();
   
+  const [salles, setSalles] = useState([]);
+
+  useEffect(() => {
+    // On utilise l'outil spécifique "getMySalles"
+    api.getMySalles()
+      .then(data => setSalles(data))
+      .catch(err => console.error("Erreur lors du chargement de vos salles :", err));
+  }, []); // Le tableau vide [] assure que l'appel ne se fait qu'une seule fois au chargement
+
   // 1. ÉTAT DU FILTRE
   // 'all' par défaut, peut passer à 'sport' ou 'reunion'
   const [filter, setFilter] = useState('all');
@@ -32,7 +40,6 @@ const MesSalles = () => {
 
   return (
     <div className="d-flex flex-column h-100">
-      
       {/* HEADER  */}
       <div className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-4 flex-shrink-0" style={{ backgroundColor: '#430000' }}>
         <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>

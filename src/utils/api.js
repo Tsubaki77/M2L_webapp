@@ -9,7 +9,7 @@ export const api = {
     const response = await fetch(`${BASE_URL}/api/login_check`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: identifiant, password: password }),
+      body: JSON.stringify({ identifiant: identifiant, password: password }),
     });
 
     if (!response.ok) {
@@ -110,6 +110,11 @@ export const api = {
     return res.json();
   },
 
+  getMySalles: async () => {
+    const res = await api.request('/api/mes_salles');
+    return res.json();
+  },
+  
   getOneSalle: async (id) => {
     const res = await api.request(`/api/salles/${id}`);
     return res.json();

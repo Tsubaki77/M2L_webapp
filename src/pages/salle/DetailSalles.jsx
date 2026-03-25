@@ -147,7 +147,7 @@ const DetailSalles = () => {
                             {/* Grille des stats de la salle */}
                             <div className="row gy-4 mb-4">
                                 <div className="col-md-6 text-center"><div className="text-secondary small fw-bold mb-1 text-uppercase">Capacité</div><p className="fs-5 fw-bold text-dark mb-0">{salle.capacite} personnes</p></div>
-                                <div className="col-md-6 text-center"><div className="text-secondary small fw-bold mb-1 text-uppercase">Superficie</div><p className="fs-5 fw-bold text-dark mb-0">{salle.superficie}</p></div>
+                                <div className="col-md-6 text-center"><div className="text-secondary small fw-bold mb-1 text-uppercase">Adresse</div><p className="fs-5 fw-bold text-dark mb-0">{salle.adresse}</p></div>
                                 <div className="col-md-6 text-center"><div className="text-secondary small fw-bold mb-1 text-uppercase">Ville</div><p className="text-dark mb-0 fw-medium">{salle.ville}</p></div>
                                 <div className="col-md-6 text-center"><div className="text-secondary small fw-bold mb-1 text-uppercase">Avis Global</div>{renderStars(Math.round(dynamicAverage))}</div>
                             </div>
