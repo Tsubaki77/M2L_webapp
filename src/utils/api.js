@@ -54,7 +54,6 @@ export const api = {
   // 2. MÉTHODE DE BASE
   // ---------------------------------------------------------
 
-  // Toutes les requêtes authentifiées passent par ici
   request: async (endpoint, options = {}) => {
     const token = sessionStorage.getItem('m2l_token');
 
@@ -70,14 +69,12 @@ export const api = {
       headers,
     });
 
-    // Token expiré ou invalide → déconnexion automatique
     if (response.status === 401) {
       sessionStorage.removeItem('m2l_token');
       window.location.href = '/login';
       return;
     }
 
-    // Pour toute autre erreur HTTP on lève une exception avec le message Symfony
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
@@ -94,13 +91,11 @@ export const api = {
   // 3. GESTION DES GESTIONNAIRES
   // ---------------------------------------------------------
 
-  // Récupérer la liste complète
   getGestionnaires: async () => {
     const res = await api.request('/api/gestionnaires');
     return res.json();
   },
 
-  // Créer un gestionnaire
   createGestionnaire: async (gestionnaireData) => {
     const res = await api.request('/api/gestionnaires', {
       method: 'POST',
@@ -109,9 +104,73 @@ export const api = {
     return res.json();
   },
 
-  // Supprimer un gestionnaire par son ID
   deleteGestionnaire: async (id) => {
     await api.request(`/api/gestionnaires/${id}`, { method: 'DELETE' });
+  },
+
+  // ---------------------------------------------------------
+  // 4. GESTION DES TYPES DE SALLES
+  // ---------------------------------------------------------
+
+  // Retourne { sport: [...], evenement: [...] }
+  getTypesSalles: async () => {
+    const res = await api.request('/api/types-salles');
+    return res.json();
+  },
+
+  // Crée un type s'il n'existe pas déjà, sinon retourne l'existant
+  createTypeSalle: async (typeSalleData) => {
+    const res = await api.request('/api/types-salles', {
+      method: 'POST',
+      body: JSON.stringify(typeSalleData),
+    });
+    return res.json();
+  },
+
+  // ---------------------------------------------------------
+  // 5. GESTION DES SALLES
+  // ---------------------------------------------------------
+
+  // Liste toutes les salles
+  getSalles: async () => {
+    const res = await api.request('/api/salles');
+    return res.json();
+  },
+
+  // Salles du gestionnaire connecté uniquement
+  getMesSalles: async () => {
+    const res = await api.request('/api/mes-salles');
+    return res.json();
+  },
+
+  // Fiche détaillée d'une salle
+  getSalle: async (id) => {
+    const res = await api.request(`/api/salles/${id}`);
+    return res.json();
+  },
+
+  // Créer une salle avec ses horaires
+  // { nom, adresse, capacite, typeSalleId, description?, horaires:}
+  createSalle: async (salleData) => {
+    const res = await api.request('/api/salles', {
+      method: 'POST',
+      body: JSON.stringify(salleData),
+    });
+    return res.json();
+  },
+
+  // Modifier une salle (et optionnellement ses horaires)
+  updateSalle: async (id, salleData) => {
+    const res = await api.request(`/api/salles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(salleData),
+    });
+    return res.json();
+  },
+
+  // Supprimer une salle — ROLE_SUPER_ADMIN uniquement
+  deleteSalle: async (id) => {
+    await api.request(`/api/salles/${id}`, { method: 'DELETE' });
   },
 
 };
