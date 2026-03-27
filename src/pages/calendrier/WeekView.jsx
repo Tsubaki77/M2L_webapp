@@ -1,60 +1,105 @@
 import React from 'react';
-import { getWeekDates } from '../../utils/calendarUtils.js'; 
+import { getWeekDates, eventOnDate, parseTime } from '../../utils/calendarUtils';
 
-const WeekView = ({ events, activeDate, handleEventClick }) => {
-  // 1. GÉNÉRATION DES 7 JOURS
+const HOUR_START = 7;
+const HOUR_END   = 22;
+const HOUR_H     = 64; // px par heure
+
+const WeekView = ({ events, activeDate, setActiveDate, setCurrentView, handleEventClick }) => {
   const weekDates = getWeekDates(activeDate);
+  const hours     = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
+  const today     = new Date();
+
+  const handleDayHeaderClick = (date) => {
+    setActiveDate(date);
+    setCurrentView('day');
+  };
 
   return (
-    <div className="flex-grow-1 d-flex w-100 overflow-hidden bg-light">
-      
-      {/* 2. BOUCLE SUR LES 7 COLONNES */}
-      {weekDates.map((day, idx) => {
-        // Filtre les events pour ne garder que ceux de CETTE colonne (ce jour-là)
-        const dayEvents = events.filter(e => e.date.toDateString() === day.toDateString());
-        
-        // Vérifie si la colonne en cours correspond à la date d'aujourd'hui 
-        const isToday = day.toDateString() === new Date().toDateString();
+    <div className="cal-timegrid-wrapper">
 
-        return (
-          // flex-fill : chaque colonne prend la même place. 14.28% = 100% divisé par 7 jours
-          <div key={idx} className="flex-fill border-end bg-white d-flex flex-column" style={{ width: '14.28%', minWidth: '120px' }}>
-            
-            {/* 3. EN-TÊTE DE LA COLONNE (Jour & Date) */}
-            <div className="text-center py-2 border-bottom">
-              <div className="small text-muted text-uppercase fw-bold">
+      {/* ── En-têtes colonnes ── */}
+      <div className="cal-timegrid-header">
+        <div className="cal-timegrid-gutter" />
+        {weekDates.map((day, i) => {
+          const isToday = day.toDateString() === today.toDateString();
+          return (
+            <div
+              key={i}
+              className={`cal-timegrid-col-header${isToday ? ' today' : ''}`}
+              onClick={() => handleDayHeaderClick(day)}
+            >
+              <div className="cal-timegrid-weekday">
                 {day.toLocaleDateString('fr-FR', { weekday: 'short' })}
               </div>
-              
-              {/* Le numéro du jour (Passe en rouge "bg-danger" si c'est aujourd'hui) */}
-              <div className={`fs-5 fw-bold d-inline-block rounded-circle ${isToday ? 'bg-danger text-white' : 'text-dark'}`} style={{ width: '35px', height: '35px', lineHeight: '35px' }}>
+              <div className={`cal-timegrid-daynum${isToday ? ' today-num' : ''}`}>
                 {day.getDate()}
               </div>
             </div>
-            
-            {/* 4. CONTENU DE LA COLONNE (Les réservations) */}
-            <div className="p-2 flex-grow-1 overflow-auto">
-              
-              {/* On boucle sur les events du jour pour créer les petites cartes */}
-              {dayEvents.map(ev => (
-                <div 
-                  key={ev.id} 
-                  // Injecte la couleur dynamique de la ligue (ev.color)
-                  className={`p-2 mb-2 rounded border shadow-sm ${ev.color}`} 
-                  style={{ cursor: 'pointer' }} 
-                  onClick={(e) => handleEventClick(e, ev.id)} // Go vers la vue détail
-                >
-                  <div className="fw-bold small">{ev.title}</div>
-                  <div style={{ fontSize: '0.75rem' }}>{ev.time} - {ev.location}</div>
-                </div>
-              ))}
+          );
+        })}
+      </div>
 
-            </div>
+      {/* ── Corps scrollable ── */}
+      <div className="cal-timegrid-body custom-scroll">
+        <div className="cal-timegrid-inner" style={{ height: `${(HOUR_END - HOUR_START) * HOUR_H}px` }}>
 
+          {/* Colonne des heures */}
+          <div className="cal-timegrid-hours">
+            {hours.map(h => (
+              <div key={h} className="cal-timegrid-hour-label" style={{ height: `${HOUR_H}px` }}>
+                {String(h).padStart(2, '0')}:00
+              </div>
+            ))}
           </div>
-        );
-      })}
 
+          {/* Colonnes jours */}
+          {weekDates.map((day, di) => {
+            const dayEvents = events.filter(e => eventOnDate(e, day));
+            return (
+              <div key={di} className="cal-timegrid-col">
+                {/* Lignes horaires */}
+                {hours.map(h => (
+                  <div
+                    key={h}
+                    className="cal-timegrid-hour-line"
+                    style={{ top: `${(h - HOUR_START) * HOUR_H}px` }}
+                  />
+                ))}
+
+                {/* Événements */}
+                {dayEvents.map(ev => {
+                  const start  = parseTime(ev.heureDebut);
+                  const end    = parseTime(ev.heureFin);
+                  const top    = (start - HOUR_START) * HOUR_H;
+                  const height = Math.max((end - start) * HOUR_H, 24);
+
+                  return (
+                    <div
+                      key={ev.id}
+                      className="cal-timegrid-event"
+                      style={{
+                        top:         `${top}px`,
+                        height:      `${height}px`,
+                        background:  ev.color.bg,
+                        borderColor: ev.color.border,
+                        color:       ev.color.text,
+                      }}
+                      onClick={(e) => handleEventClick(e, ev.id)}
+                    >
+                      <div className="cal-event-time">
+                        {ev.heureDebut?.slice(0, 5)} – {ev.heureFin?.slice(0, 5)}
+                      </div>
+                      <div className="cal-event-title">{ev.motif}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+
+        </div>
+      </div>
     </div>
   );
 };

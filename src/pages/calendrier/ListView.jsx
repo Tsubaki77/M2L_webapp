@@ -1,63 +1,74 @@
 import React from 'react';
-import { Clock, MapPin } from 'lucide-react';
+import { CalendarDays, Clock, User } from 'lucide-react';
+import { statutLabel } from '../../utils/calendarUtils';
 
 const ListView = ({ events, activeDate, handleEventClick }) => {
-  // 1. FILTRE ET TRI DES DONNÉES
-  // On garde uniquement les événements à partir du 1er jour du mois affiché (activeDate).
-  // On les trie chronologiquement (a.date - b.date).
-  const upcomingEvents = events
-    .filter(e => e.date >= new Date(activeDate.getFullYear(), activeDate.getMonth(), 1))
-    .sort((a, b) => a.date - b.date);
+  const monthStart = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1);
+
+  const upcoming = [...events]
+    .filter(e => e.dateFin >= monthStart)
+    .sort((a, b) => a.dateDebut - b.dateDebut);
+
+  // Grouper par date de début
+  const groups = {};
+  upcoming.forEach(ev => {
+    const key = ev.dateDebut.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day:     'numeric',
+      month:   'long',
+      year:    'numeric',
+    });
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+
+  if (Object.keys(groups).length === 0) {
+    return (
+      <div className="cal-list-empty">
+        <CalendarDays size={48} className="mb-3 opacity-25" />
+        <p className="text-muted mb-0">Aucune réservation ce mois-ci</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-grow-1 overflow-auto p-4 w-100 bg-light">
-      <div className="card border-0 shadow-sm mx-auto" style={{ maxWidth: '900px' }}>
-        <div className="list-group list-group-flush">
-          
-          {/* 2. BOUCLE D'AFFICHAGE */}
-          {upcomingEvents.map(ev => (
-            <div 
-              key={ev.id} 
-              className="list-group-item p-3 d-flex align-items-center gap-4 hover-bg-light transition-all" 
-              style={{ cursor: 'pointer' }} 
-              onClick={(e) => handleEventClick(e, ev.id)} // Go page détail
+    <div className="cal-list custom-scroll">
+      {Object.entries(groups).map(([dateLabel, dayEvents]) => (
+        <div key={dateLabel} className="cal-list-group">
+          <div className="cal-list-date">{dateLabel}</div>
+          {dayEvents.map(ev => (
+            <div
+              key={ev.id}
+              className="cal-list-item"
+              style={{ borderLeftColor: ev.color.border }}
+              onClick={(e) => handleEventClick(e, ev.id)}
             >
-              
-              {/* BLOC GAUCHE : La date stylisée (ex: 12 Fév / Lundi) */}
-              <div className="text-center border-end pe-4" style={{ minWidth: '120px' }}>
-                <div className="fw-bold fs-5" style={{ color: '#430000' }}>
-                  {ev.date.getDate()} {ev.date.toLocaleDateString('fr-FR', { month: 'short' })}
+              <div className="cal-list-item-left">
+                <div className="cal-list-time">
+                  <Clock size={13} />
+                  {ev.heureDebut?.slice(0, 5)} – {ev.heureFin?.slice(0, 5)}
                 </div>
-                <div className="text-muted small">
-                  {ev.date.toLocaleDateString('fr-FR', { weekday: 'long' })}
-                </div>
+                <div className="cal-list-motif">{ev.motif}</div>
+                {ev.adherent && (
+                  <div className="cal-list-adherent">
+                    <User size={12} /> {ev.adherent.prenom} {ev.adherent.nom}
+                  </div>
+                )}
               </div>
-              
-              {/* BLOC MILIEU : Titre et détails (Heure, Durée, Lieu) */}
-              <div className="flex-grow-1">
-                <h5 className="mb-1 fw-bold text-dark">{ev.title}</h5>
-                <div className="text-muted small d-flex gap-3">
-                  <span>
-                    <Clock size={14} className="me-1"/> {ev.time} ({ev.duration})
-                  </span>
-                  <span>
-                    <MapPin size={14} className="me-1"/> {ev.location}
-                  </span>
-                </div>
-              </div>
-              
-              {/* BLOC DROITE : La pastille avec la couleur dynamique (ev.color) */}
-              <div>
-                <span className={`badge rounded-pill ${ev.color} px-3 py-2`}>
-                  {ev.type}
-                </span>
-              </div>
-
+              <span
+                className="cal-list-badge"
+                style={{
+                  background:  ev.color.bg,
+                  borderColor: ev.color.border,
+                  color:       ev.color.text,
+                }}
+              >
+                {statutLabel(ev.statut)}
+              </span>
             </div>
           ))}
-
         </div>
-      </div>
+      ))}
     </div>
   );
 };

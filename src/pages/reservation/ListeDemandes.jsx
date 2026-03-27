@@ -1,193 +1,180 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import { Check, X, ChevronRight, Calendar, User, Trophy, MapPin, Loader2, Clock } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Check, X, ChevronRight, Calendar, User, Loader2, Clock } from 'lucide-react';
+import { api } from '../../utils/api';
+import { statutLabel, getColorForStatut } from '../../utils/calendarUtils';
 
-
-import { requestData } from '../data/requestData'; 
+const STATUTS = [
+  { value: 'all',        label: 'Toutes' },
+  { value: 'EN_ATTENTE', label: 'En attente' },
+  { value: 'VALIDEE',    label: 'Validées' },
+  { value: 'REFUSEE',    label: 'Refusées' },
+];
 
 const ListeDemandes = () => {
-  // 1. ÉTATS (STATES)
-  const [requests, setRequests] = useState([]); // Liste des demandes filtrables
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [reservations, setReservations] = useState([]);
+  const [filter, setFilter]             = useState('EN_ATTENTE');
+  const [isLoading, setIsLoading]       = useState(true);
+  const [error, setError]               = useState(null);
 
-  // 2. CHARGEMENT INITIAL
-  useEffect(() => {
-    const fetchReservations = async () => {
-      setIsLoading(true);
-      try {
-        // Simulation d'attente réseau (à voir pour l'API réelle)
-        await new Promise(resolve => setTimeout(resolve, 600)); 
-        // On récupère tout, on pourra filtrer par 'status === pending' si besoin ici
-        setRequests(requestData);
-      } catch (err) {
-        setError("Impossible de charger les demandes.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchReservations();
+  const fetchReservations = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await api.getReservations();
+      setReservations(data);
+    } catch {
+      setError('Impossible de charger les demandes.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // 3. ACTIONS RAPIDES
-  // Pour le moment, Valider ou Refuser retire simplement la ligne de la liste (simulation)
-  const handleValidate = (id) => setRequests(prev => prev.filter(req => req.id !== id));
-  const handleReject = (id) => setRequests(prev => prev.filter(req => req.id !== id));
+  useEffect(() => { fetchReservations(); }, [fetchReservations]);
 
-
-  // 4. LOGIQUE D'AFFICHAGE 
-  // Cette fonction gère l'affichage selon le type de réservation (créneau, journée, mois...)
-  const renderDateInfo = (req) => {
-      const textStyle = "text-secondary fw-medium text-truncate";
-
-      switch(req.type) {
-          // CAS : Une seule journée + Heures précises
-          case 'creneau':
-              return (
-                  <span className={textStyle}>
-                      {req.date} <span className="mx-2">|</span> {req.startTime} - {req.endTime}
-                  </span>
-              );
-
-          // CAS : Journée bloquée complète
-          case 'fullday':
-              return (
-                  <span className={textStyle}>
-                      {req.date} <span className="mx-2">|</span> Journée entière
-                  </span>
-              );
-
-          // CAS : Événement sur plusieurs jours
-          case 'multiday':
-              return (
-                  <span className={textStyle}>
-                      Du {req.startDate} au {req.endDate} <span className="mx-2">|</span> {req.startTime} - {req.endTime}
-                  </span>
-              );
-
-          // CAS : Location longue durée
-          case 'month':
-            return (
-                <span className={textStyle}>
-                    Du {req.startDate} au {req.endDate} <span className="mx-2">|</span> {req.startTime ? `${req.startTime} - ${req.endTime}` : "Mois entier"}
-                </span>
-            );
-
-          default:
-            return <span className={textStyle}>{req.date}</span>;
-      }
+  const handleStatut = async (id, statut) => {
+    try {
+      await api.updateReservationStatut(id, statut);
+      setReservations((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, statut } : r))
+      );
+    } catch (err) {
+      alert(err.message || 'Erreur lors de la mise à jour.');
+    }
   };
 
-  // 5. RENDU PRINCIPAL
+  const filtered = filter === 'all'
+    ? reservations
+    : reservations.filter((r) => r.statut === filter);
+
   return (
-      <div className="d-flex flex-column h-100">
-        
-        {/*LOADER */}
-        {isLoading ? (
-            <div className="d-flex justify-content-center align-items-center flex-grow-1">
-               <Loader2 className="animate-spin" style={{color: "#CC4040"}} size={48} />
-            </div>
-        ) : error ? (
-            <div className="alert alert-danger m-4" role="alert">{error}</div>
-        ) : (
-        
-        <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
-             
-             {/* HEADER */}
-             <div className="d-flex align-items-center gap-4 p-4 rounded-3 shadow-sm mb-1 flex-shrink-0" style={{ backgroundColor: '#430000' }}>
-                <h2 className="text-white fw-bold m-0 fs-4 text-uppercase" style={{ letterSpacing: '1px' }}>
-                    Gérez les nouvelles demandes : {requests.length}
-                </h2>
-             </div>
-
-             {/* LISTE DES CARTES */}
-             <div className="p-3 flex-grow-1 overflow-y-auto custom-scroll">
-                <div className="d-flex flex-column gap-3">
-                  {requests.map((req) => (
-                    // LIGNE DE DEMANDE (Horizontal)
-                    <div key={req.id} className="bg-white border border-secondary-subtle rounded-3 p-3 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
-                      
-                      {/* BLOC INFOS */}
-                      <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                          <div className="row w-100 align-items-center m-0 text-nowrap">
-                             
-                             {/* 1. Salle */}
-                             <div className="col-3 d-flex align-items-center ps-0 overflow-hidden">
-                                 <MapPin size={18} className="me-2 text-danger flex-shrink-0"/>
-                                 <span className="text-secondary text-uppercase text-truncate" title={req.roomName}>
-                                    {req.roomName}
-                                 </span>
-                             </div>
-                             
-                             {/* 2. Ligue émettrice */}
-                             <div className="col-2 d-flex align-items-center text-secondary border-start ps-3 overflow-hidden">
-                                 <Trophy size={18} className="me-2 flex-shrink-0"/>
-                                 <span className="text-truncate fw-medium">{req.league}</span>
-                             </div>
-                             
-                             {/* 3. Utilisateur */}
-                             <div className="col-2 d-flex align-items-center text-secondary border-start ps-3 overflow-hidden">
-                                 <User size={18} className="me-2 flex-shrink-0"/>
-                                 <span className="text-truncate fw-medium">{req.user}</span>
-                             </div>
-                             
-                             {/* 4. Date & Heure (Appel du helper intelligent) */}
-                             <div className="col-5 d-flex align-items-center border-start ps-3 overflow-hidden">
-                                 <Calendar size={18} className="me-2 text-secondary flex-shrink-0"/>
-                                 {renderDateInfo(req)}
-                             </div>
-
-                          </div>
-                      </div>
-                      
-                      {/* BLOC BOUTONS D'ACTION (À droite) */}
-                      <div className="d-flex align-items-center gap-2 border-start ps-3 py-1 flex-shrink-0">
-                        
-                        {/* Valider */}
-                        <button onClick={(e) => { e.stopPropagation(); handleValidate(req.id); }} className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold hover-scale">
-                             <Check size={16} /> VALIDER
-                        </button>
-                        
-                        {/* Refuser */}
-                        <button onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold hover-scale">
-                             <X size={16} /> REFUSER
-                        </button>
-                        
-                        {/* Détails */}
-                        <button 
-                            className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center ms-2 shadow-sm" 
-                            style={{width:'35px', height:'35px'}} 
-                            onClick={() => navigate(`/demandes/${req.id}`)}
-                        >
-                           <ChevronRight size={20} className="text-muted"/>
-                        </button>
-                        
-                      </div>
-
-                    </div>
-                  ))}
-
-                  {/* État vide */}
-                  {requests.length === 0 && (
-                      <div className="text-center py-5 text-muted">
-                          <p className="fs-5">Aucune demande en attente.</p>
-                      </div>
-                  )}
-                </div>
-             </div>
+    <div className="d-flex flex-column h-100">
+      {isLoading ? (
+        <div className="d-flex justify-content-center align-items-center flex-grow-1">
+          <Loader2 size={48} className="spinner-icon" style={{ color: '#CC4040' }} />
         </div>
-        )}
-        
-        {/* CSS Interne */}
-        <style>{`
-            .animate-spin { animation: spin 1s linear infinite; }
-            @keyframes spin { 100% { transform: rotate(360deg); } }
-            .hover-scale:hover { transform: scale(1.05); transition: all 0.2s; }
-            .custom-scroll::-webkit-scrollbar { width: 6px; }
-            .custom-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-        `}</style>
-      </div>
+      ) : error ? (
+        <div className="alert alert-danger m-4">{error}</div>
+      ) : (
+        <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
+
+          <div className="page-header mb-3 flex-shrink-0">
+            <h2 className="page-header-title">Demandes de réservation : {reservations.length}</h2>
+          </div>
+
+          {/* Filtres */}
+          <div className="d-flex gap-2 mb-3 flex-shrink-0 px-1">
+            {STATUTS.map((s) => (
+              <button
+                key={s.value}
+                onClick={() => setFilter(s.value)}
+                className={`btn btn-sm rounded-pill px-3 fw-bold ${filter === s.value ? 'bg-m2l-dark text-white' : 'btn-light text-secondary'}`}
+              >
+                {s.label}
+                <span className="ms-2 badge rounded-pill bg-white text-dark">
+                  {s.value === 'all' ? reservations.length : reservations.filter((r) => r.statut === s.value).length}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-grow-1 overflow-y-auto custom-scroll px-1">
+            <div className="d-flex flex-column gap-3">
+              {filtered.map((r) => {
+                const color = getColorForStatut(r.statut);
+                return (
+                  <div
+                    key={r.id}
+                    className="bg-white border border-secondary-subtle rounded-3 p-3 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3"
+                    style={{ borderLeft: `4px solid ${color.border}` }}
+                  >
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <div className="row w-100 align-items-center m-0 text-nowrap">
+
+                        {/* Demandeur */}
+                        <div className="col-3 d-flex align-items-center ps-0 overflow-hidden">
+                          <User size={16} className="me-2 text-secondary flex-shrink-0" />
+                          <div className="overflow-hidden">
+                            <div className="fw-bold text-dark text-truncate small">
+                              {r.adherent ? `${r.adherent.prenom} ${r.adherent.nom}` : '—'}
+                            </div>
+                            <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                              {r.adherent?.email}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Dates */}
+                        <div className="col-4 d-flex align-items-center border-start ps-3 overflow-hidden">
+                          <Calendar size={16} className="me-2 text-secondary flex-shrink-0" />
+                          <span className="text-secondary small text-truncate">
+                            {r.dateDebut === r.dateFin
+                              ? r.dateDebut
+                              : `${r.dateDebut} → ${r.dateFin}`}
+                          </span>
+                        </div>
+
+                        {/* Horaires */}
+                        <div className="col-3 d-flex align-items-center border-start ps-3 overflow-hidden">
+                          <Clock size={16} className="me-2 text-secondary flex-shrink-0" />
+                          <span className="text-secondary small text-truncate">
+                            {r.heureDebut} – {r.heureFin}
+                          </span>
+                        </div>
+
+                        {/* Statut */}
+                        <div className="col-2 d-flex justify-content-end">
+                          <span
+                            className="badge rounded-pill small fw-bold px-3 py-2"
+                            style={{ backgroundColor: color.bg, color: color.text, border: `1px solid ${color.border}` }}
+                          >
+                            {statutLabel(r.statut)}
+                          </span>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-2 border-start ps-3 flex-shrink-0">
+                      {r.statut === 'EN_ATTENTE' && (
+                        <>
+                          <button
+                            onClick={() => handleStatut(r.id, 'VALIDEE')}
+                            className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold"
+                          >
+                            <Check size={14} /> Valider
+                          </button>
+                          <button
+                            onClick={() => handleStatut(r.id, 'REFUSEE')}
+                            className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-3 rounded-pill fw-bold"
+                          >
+                            <X size={14} /> Refuser
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center ms-1 shadow-sm"
+                        style={{ width: '34px', height: '34px' }}
+                        onClick={() => navigate(`/demandes/${r.id}`)}
+                      >
+                        <ChevronRight size={18} className="text-muted" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {filtered.length === 0 && (
+                <div className="text-center py-5 text-muted">
+                  <p className="fs-5">Aucune demande pour ce filtre.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

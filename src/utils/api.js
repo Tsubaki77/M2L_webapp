@@ -30,24 +30,21 @@ export const api = {
     window.location.href = '/login';
   },
 
-  // Décode le token JWT et retourne l'utilisateur connecté
+  // Décode le JWT et retourne { identifiant, roles }
   getUser: () => {
     const token = sessionStorage.getItem('m2l_token');
     if (!token) return null;
-
     try {
-      const base64Url = token.split('.')[1];
-      const base64    = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const payload   = JSON.parse(window.atob(base64));
-
-      return {
-        identifiant: payload.username,
-        roles: payload.roles || [],
-      };
-    } catch (e) {
-      console.error('Erreur de décodage du token', e);
+      const payload = JSON.parse(window.atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return { identifiant: payload.username, roles: payload.roles || [] };
+    } catch {
       return null;
     }
+  },
+
+  isSuperAdmin: () => {
+    const user = api.getUser();
+    return user?.roles?.includes('ROLE_SUPER_ADMIN') ?? false;
   },
 
   // ---------------------------------------------------------
@@ -56,7 +53,6 @@ export const api = {
 
   request: async (endpoint, options = {}) => {
     const token = sessionStorage.getItem('m2l_token');
-
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -64,10 +60,7 @@ export const api = {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 
     if (response.status === 401) {
       sessionStorage.removeItem('m2l_token');
@@ -88,7 +81,16 @@ export const api = {
   },
 
   // ---------------------------------------------------------
-  // 3. GESTION DES GESTIONNAIRES
+  // 3. PROFIL CONNECTÉ
+  // ---------------------------------------------------------
+
+  getMe: async () => {
+    const res = await api.request('/api/me');
+    return res.json();
+  },
+
+  // ---------------------------------------------------------
+  // 4. GESTION DES GESTIONNAIRES
   // ---------------------------------------------------------
 
   getGestionnaires: async () => {
@@ -96,10 +98,18 @@ export const api = {
     return res.json();
   },
 
-  createGestionnaire: async (gestionnaireData) => {
+  createGestionnaire: async (data) => {
     const res = await api.request('/api/gestionnaires', {
       method: 'POST',
-      body: JSON.stringify(gestionnaireData),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updateGestionnaire: async (id, data) => {
+    const res = await api.request(`/api/gestionnaires/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
     });
     return res.json();
   },
@@ -109,68 +119,121 @@ export const api = {
   },
 
   // ---------------------------------------------------------
-  // 4. GESTION DES TYPES DE SALLES
+  // 5. GESTION DES TYPES DE SALLES
   // ---------------------------------------------------------
 
-  // Retourne { sport: [...], evenement: [...] }
   getTypesSalles: async () => {
     const res = await api.request('/api/types-salles');
     return res.json();
   },
 
-  // Crée un type s'il n'existe pas déjà, sinon retourne l'existant
-  createTypeSalle: async (typeSalleData) => {
+  createTypeSalle: async (data) => {
     const res = await api.request('/api/types-salles', {
       method: 'POST',
-      body: JSON.stringify(typeSalleData),
+      body: JSON.stringify(data),
     });
     return res.json();
   },
 
   // ---------------------------------------------------------
-  // 5. GESTION DES SALLES
+  // 6. GESTION DES SALLES
   // ---------------------------------------------------------
 
-  // Liste toutes les salles
-  getSalles: async () => {
-    const res = await api.request('/api/salles');
+  getSalles: async (categorie = null) => {
+    const url = categorie ? `/api/salles?categorie=${categorie}` : '/api/salles';
+    const res = await api.request(url);
     return res.json();
   },
 
-  // Salles du gestionnaire connecté uniquement
   getMesSalles: async () => {
     const res = await api.request('/api/mes-salles');
     return res.json();
   },
 
-  // Fiche détaillée d'une salle
   getSalle: async (id) => {
     const res = await api.request(`/api/salles/${id}`);
     return res.json();
   },
 
-  // Créer une salle avec ses horaires
-  // { nom, adresse, capacite, typeSalleId, description?, horaires:}
-  createSalle: async (salleData) => {
+  createSalle: async (data) => {
     const res = await api.request('/api/salles', {
       method: 'POST',
-      body: JSON.stringify(salleData),
+      body: JSON.stringify(data),
     });
     return res.json();
   },
 
-  // Modifier une salle (et optionnellement ses horaires)
-  updateSalle: async (id, salleData) => {
+  updateSalle: async (id, data) => {
     const res = await api.request(`/api/salles/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(salleData),
+      body: JSON.stringify(data),
     });
     return res.json();
   },
 
-  // Supprimer une salle — ROLE_SUPER_ADMIN uniquement
   deleteSalle: async (id) => {
     await api.request(`/api/salles/${id}`, { method: 'DELETE' });
   },
 
+  uploadPhoto: async (file) => {
+    const token = sessionStorage.getItem('m2l_token');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${BASE_URL}/api/upload`, {
+      method: 'POST',
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || "Erreur lors de l'upload");
+    }
+    const data = await response.json();
+    return data.url;
+  },
+
+  // ---------------------------------------------------------
+  // 7. GESTION DES HORAIRES
+  // ---------------------------------------------------------
+
+  updateHoraireStatut: async (id, statut) => {
+    const res = await api.request(`/api/horaires/${id}/statut`, {
+      method: 'PATCH',
+      body: JSON.stringify({ statut }),
+    });
+    return res.json();
+  },
+
+  // ---------------------------------------------------------
+  // 8. GESTION DES RÉSERVATIONS
+  // ---------------------------------------------------------
+
+  // params: { date: 'YYYY-MM-DD' } (optionnel)
+  getReservations: async (params = {}) => {
+    const query = params.date ? `?date=${params.date}` : '';
+    const res = await api.request(`/api/reservations${query}`);
+    return res.json();
+  },
+
+  createReservation: async (data) => {
+    const res = await api.request('/api/reservations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updateReservationStatut: async (id, statut) => {
+    const res = await api.request(`/api/reservations/${id}/statut`, {
+      method: 'PATCH',
+      body: JSON.stringify({ statut }),
+    });
+    return res.json();
+  },
+
+  deleteReservation: async (id) => {
+    await api.request(`/api/reservations/${id}`, { method: 'DELETE' });
+  },
 };

@@ -1,62 +1,94 @@
 import React from 'react';
-import { Clock, MapPin, CalendarDays } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
+import { eventOnDate, parseTime } from '../../utils/calendarUtils';
+
+const HOUR_START = 7;
+const HOUR_END   = 22;
+const HOUR_H     = 64;
 
 const DayView = ({ events, activeDate, handleEventClick }) => {
-  // 1. FILTRE : Je garde uniquement les events du jour affiché
-  const dayEvents = events.filter(e => e.date.toDateString() === activeDate.toDateString());
+  const dayEvents = events.filter(e => eventOnDate(e, activeDate));
+  const hours     = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
+  const isToday   = activeDate.toDateString() === new Date().toDateString();
 
   return (
-    <div className="flex-grow-1 overflow-auto p-4 bg-light w-100">
-      <div className="card border-0 shadow-sm mx-auto" style={{ maxWidth: '800px' }}>
-        
-        {/* HEADER */}
-        <div className="card-header bg-white border-bottom py-3">
-          <h5 className="mb-0 fw-bold" style={{ color: '#430000' }}>Programme du jour</h5>
-        </div>
-        
-        {/* BODY */}
-        <div className="card-body p-0">
-          
-          {/* 2. CONDITION : Des events aujourd'hui ? */}
-          {dayEvents.length > 0 ? (
-            <div className="list-group list-group-flush">
-              
-              {/* Trie par heure (08h avant 10h) et je boucle */}
-              {dayEvents.sort((a,b) => a.time.localeCompare(b.time)).map(ev => (
-                <div 
-                  key={ev.id} 
-                  className="list-group-item p-4 d-flex gap-4 align-items-center border-bottom hover-bg-light transition-all" 
-                  style={{ cursor: 'pointer' }} 
-                  onClick={(e) => handleEventClick(e, ev.id)} // Go vers la vue détail
-                >
-                  
-                  {/* Gauche : Heure / Durée */}
-                  <div className="text-center" style={{ minWidth: '80px' }}>
-                    <h4 className="fw-bold mb-0 text-dark">{ev.time}</h4>
-                    <small className="text-muted">{ev.duration}</small>
-                  </div>
-                  
-                  {/* Droite : Infos + Couleur dynamique de la ligue (ev.color) */}
-                  <div className={`p-3 rounded-3 border flex-grow-1 ${ev.color}`}>
-                    <h5 className="fw-bold mb-1">{ev.title}</h5>
-                    <div className="d-flex gap-3 small mt-2 opacity-75">
-                      <span className="d-flex align-items-center gap-1"><MapPin size={14}/> {ev.location}</span>
-                      <span className="d-flex align-items-center gap-1 text-uppercase fw-bold"><Clock size={14}/> {ev.type}</span>
-                    </div>
-                  </div>
+    <div className="cal-timegrid-wrapper">
 
+      {/* ── En-tête ── */}
+      <div className="cal-timegrid-header">
+        <div className="cal-timegrid-gutter" />
+        <div className={`cal-timegrid-col-header${isToday ? ' today' : ''}`} style={{ flex: 1 }}>
+          <div className="cal-timegrid-weekday">
+            {activeDate.toLocaleDateString('fr-FR', { weekday: 'long' })}
+          </div>
+          <div className={`cal-timegrid-daynum${isToday ? ' today-num' : ''}`}>
+            {activeDate.getDate()} {activeDate.toLocaleDateString('fr-FR', { month: 'short' })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Corps ── */}
+      <div className="cal-timegrid-body custom-scroll">
+        <div className="cal-timegrid-inner" style={{ height: `${(HOUR_END - HOUR_START) * HOUR_H}px` }}>
+
+          {/* Heures */}
+          <div className="cal-timegrid-hours">
+            {hours.map(h => (
+              <div key={h} className="cal-timegrid-hour-label" style={{ height: `${HOUR_H}px` }}>
+                {String(h).padStart(2, '0')}:00
+              </div>
+            ))}
+          </div>
+
+          {/* Colonne unique */}
+          <div className="cal-timegrid-col" style={{ flex: 1 }}>
+            {hours.map(h => (
+              <div
+                key={h}
+                className="cal-timegrid-hour-line"
+                style={{ top: `${(h - HOUR_START) * HOUR_H}px` }}
+              />
+            ))}
+
+            {dayEvents.length === 0 && (
+              <div className="cal-day-empty">
+                <CalendarDays size={40} className="mb-2 opacity-25" />
+                <div>Aucune réservation ce jour</div>
+              </div>
+            )}
+
+            {dayEvents.map(ev => {
+              const start  = parseTime(ev.heureDebut);
+              const end    = parseTime(ev.heureFin);
+              const top    = (start - HOUR_START) * HOUR_H;
+              const height = Math.max((end - start) * HOUR_H, 30);
+
+              return (
+                <div
+                  key={ev.id}
+                  className="cal-timegrid-event"
+                  style={{
+                    top:         `${top}px`,
+                    height:      `${height}px`,
+                    background:  ev.color.bg,
+                    borderColor: ev.color.border,
+                    color:       ev.color.text,
+                  }}
+                  onClick={(e) => handleEventClick(e, ev.id)}
+                >
+                  <div className="cal-event-time">
+                    {ev.heureDebut?.slice(0, 5)} – {ev.heureFin?.slice(0, 5)}
+                  </div>
+                  <div className="cal-event-title">{ev.motif}</div>
+                  {ev.adherent && (
+                    <div className="cal-event-sub">
+                      {ev.adherent.prenom} {ev.adherent.nom}
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            
-            <div className="p-5 text-center text-muted">
-              {/* 3. EMPTY STATE : Rien de prévu aujourd'hui */}
-              <CalendarDays size={48} className="mb-3 opacity-25" />
-              <h5>Aucune réservation prévue.</h5>
-            </div>
-            
-          )}
+              );
+            })}
+          </div>
 
         </div>
       </div>

@@ -1,81 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../utils/api';
 
+const TITLES = {
+  '/':                      'Dashboard',
+  '/demandes_en_attentes':  'Demandes en attente',
+  '/mes_salles':            'Mes Salles',
+  '/calendrier':            'Calendrier',
+  '/gestionnaires':         'Gestion des Gestionnaires',
+  '/salle/ajouter':         'Ajouter une salle',
+};
+
+const getTitle = (pathname) => {
+  if (TITLES[pathname]) return TITLES[pathname];
+  if (pathname.startsWith('/demandes/'))     return 'Détail de la demande';
+  if (pathname.startsWith('/salles/modifier/')) return 'Modifier la salle';
+  if (pathname.startsWith('/salles/'))       return 'Détail de la salle';
+  return 'M2L';
+};
+
 const Header = () => {
-  // 1. Je récupère l'URL de la page actuelle 
   const location = useLocation();
+  const user = api.getUser();
+  const isSuperAdmin = api.isSuperAdmin();
+  const [gestionnaire, setGestionnaire] = useState(null);
 
-  // 2. Mon dico de correspondances : chemin fixe = titre de la page.
-  // Si je veux ajouter une page pour la nav, j'ai juste à l'ajouter ici.
-  const titles = {
-    '/': 'Dashboard',
-    '/demandes_en_attentes': 'Demandes en attente',
-    '/mes_salles': 'Mes Salles',
-    '/calendrier': 'Calendrier des réservations',
-    '/chat': 'Chat',
-    '/parametres': 'Paramètres'
-  };
+  useEffect(() => {
+    api.getMe()
+      .then(setGestionnaire)
+      .catch(() => null);
+  }, []);
 
- const currentUser = api.getUser();
+  const initiales = gestionnaire
+    ? `${gestionnaire.nom?.charAt(0) ?? ''}${gestionnaire.prenom?.charAt(0) ?? ''}`.toUpperCase()
+    : user?.identifiant?.slice(0, 2).toUpperCase() ?? '??';
 
-  const getIdentifiant = (user) => {
-    // On vérifie si l'utilisateur existe bien
-    if (!user || !user.identifiant) return '??';
-    
-    return user.identifiant;
-  };
-
-  // 3. Cherche si l'URL exacte est dans mon dico au-dessus
-  let currentTitle = titles[location.pathname];
-
-  // 4. Si c'est pas dedans (parce qu'il y a un ID dynamique, ex: /salles/5)
-  if (!currentTitle) {
-    // Si l'URL commence par /demandes/...
-    if (location.pathname.startsWith('/demandes/')) {
-      currentTitle = 'Détail de la demande'; 
-    } 
-    // Si l'URL commence par /salles/...
-    else if (location.pathname.startsWith('/salles/')) {
-      currentTitle = 'Détail de la salle'; 
-    } 
-    // Sécurité : si on arrive sur une page dont titles pas définis, on affiche juste M2L par défaut 
-    else {
-      currentTitle = 'M2L'; 
-    }
-  }
+  const displayName = gestionnaire
+    ? `${gestionnaire.prenom} ${gestionnaire.nom}`
+    : user?.identifiant ?? '';
 
   return (
-    <header 
-      // sticky-top pour qu'il reste collé en haut quand on scroll
-      // flex-shrink-0 pour qu'il ne s'écrase pas si le contenu est trop grand
-      className="sticky-top d-flex flex-shrink-0 justify-content-between align-items-center px-4" 
-      style={{ 
-        height: '80px', 
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 1020, // Je m'assure qu'il passe toujours PAR-DESSUS les autres éléments (j'abuse un peu)
-        borderBottom: '1px solid #e0e0e0',
-      }}
-    >
-      
-      {/* Titre dynamique selon la logique au-dessus */}
-      <h1 className="fs-3 fw-bold mb-0 text-dark">
-        {currentTitle}
-      </h1>
+    <header className="app-header">
+      <h1 className="app-header-title">{getTitle(location.pathname)}</h1>
 
-      <div className="">
-        <div className="d-flex align-items-center gap-3">
-          
-          <div 
-            // Pastille du profil utilisateur 
-            className="rounded-circle overflow-hidden border border-2 border-light d-flex align-items-center justify-content-center bg-secondary-subtle"
-            style={{ width: '40px', height: '40px' }}
-          >
-            {/* TODO : Quand l'API sera branchée, remplacer "CG" par les initiales du user connecté */}
-            <span className="text-dark fw-bold">{getIdentifiant(currentUser)}</span>
-          </div>
-
+      <div className="app-header-user">
+        {isSuperAdmin && (
+          <span className="badge bg-m2l-dark text-white px-3 py-2 rounded-pill">Super Admin</span>
+        )}
+        <div className="app-header-avatar" title={displayName}>
+          {initiales}
         </div>
       </div>
     </header>
