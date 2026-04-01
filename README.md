@@ -1,11 +1,67 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# M2L Web App
 
-Currently, two official plugins are available:
+Application web développée dans le cadre du projet M2L (Maison des Ligues de Lorraine).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Cette application permet la gestion des fonctionnalités principales de la M2L :
+- Connexion des utilisateurs
+- Consultation des informations
+- Réservations
+- Interface web et mobile
+- Communication avec une API Back-End
+
+---
+
+##  Objectifs 
+
+Ce projet a pour but de mettre en pratique :
+- Le développement Front-End moderne
+- La communication avec une API REST
+- La gestion de projet (Gantt, cahier des charges, diagrammes UML)
+- Le travail en méthode agile (sprints)
+
+---
+
+#  Technologies utilisées
+
+### Front-End
+- React
+- JavaScript
+- HTML / CSS
+
+  
+### Back-End
+- Symfony
+- API REST
+- Doctrine ORM
+
+### Outils
+- Git / GitHub
+- Composer
+- Node.js / npm
+- MySQL / MariaDB
+
+---
+
+## LES Prérequis
+
+Avant de lancer le projet, assurez-vous d’avoir installé :
+
+- Node.js 
+- npm
+- PHP 8.2+
+- Composer
+- MySQL ou MariaDB
+-   Symfony CLI
+
+---
+
+
+##  Installation
+
+
+
+
 
 ## React Compiler
 
