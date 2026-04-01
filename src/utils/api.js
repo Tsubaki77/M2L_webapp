@@ -25,8 +25,10 @@ export const api = {
   },
 
   logout: () => {
-    sessionStorage.removeItem('m2l_token');
-    window.location.href = '/login';
+    // AUTHENTIFICATION DÉSACTIVÉE - LOGOUT DÉSACTIVÉ
+    // sessionStorage.removeItem('m2l_token');
+    // window.location.href = '/login';
+    console.log('Logout désactivé en mode test');
   },
 
   // Récupère l'identité de celui qui est connecté au navigateur
@@ -59,8 +61,19 @@ export const api = {
       ...options.headers,
     };
 
+<<<<<<< Updated upstream
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+=======
+    const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+
+    if (response.status === 401) {
+      // AUTHENTIFICATION DÉSACTIVÉE - REDIRECT 401 DÉSACTIVÉ
+      // sessionStorage.removeItem('m2l_token');
+      // window.location.href = '/login';
+      console.log('Erreur 401 - Authentification désactivée en mode test');
+      return;
+>>>>>>> Stashed changes
     }
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {

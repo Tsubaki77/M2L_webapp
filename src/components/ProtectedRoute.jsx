@@ -3,11 +3,14 @@ import { Navigate } from 'react-router-dom';
 import { api } from '../utils/api';
 
 const ProtectedRoute = ({ children }) => {
-    const user = api.getUser();
-
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+    // AUTHENTIFICATION DÉSACTIVÉE - BYPASS MON
+    // const user = api.getUser();
+    //
+    // if (!user) {
+    //     return <Navigate to="/login" replace />;
+    // }
+    //
+    // return children;
 
     return children;
 };

@@ -8,11 +8,20 @@ const Sidebar = () => {
   // Si je veux ajouter un lien au menu, j'ai juste à l'ajouter ici
   // avec son nom, son URL (path) et son icône (de lucide-react).
   const menuItems = [
+<<<<<<< Updated upstream
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={24} /> },
     { name: 'Les Demandes', path: '/demandes_en_attentes', icon: <ListTodo size={24} /> },
     { name: 'Mes Salles', path: '/mes_salles', icon: <Dumbbell size={24} /> },
     { name: 'Calendrier', path: '/calendrier', icon: <CalendarDays size={24} /> },
     
+=======
+    { name: 'Dashboard',        path: '/',                      icon: <LayoutDashboard size={22} /> },
+    { name: 'Les Demandes',     path: '/demandes_en_attentes',  icon: <ListTodo size={22} /> },
+    { name: 'Mes Salles',       path: '/mes_salles',            icon: <Dumbbell size={22} /> },
+    { name: 'Calendrier',       path: '/calendrier',            icon: <CalendarDays size={22} /> },
+    // Afficher la page gestionnaires pour tous (=> plus simple en dev/test)
+    { name: 'Gestionnaires',    path: '/gestionnaires',        icon: <Users size={22} /> },
+>>>>>>> Stashed changes
   ];
 
   const navigate = useNavigate();
