@@ -25,7 +25,7 @@ const Calendrier = () => {
     setIsLoading(true);
     try {
       const data = await api.getReservations();
-      setEvents(data.map(reservationToEvent));
+      setEvents(data.filter(r => r.statut !== 'REFUSEE').map(reservationToEvent));
     } catch {
       setEvents([]);
     } finally {
@@ -145,10 +145,6 @@ const Calendrier = () => {
           <span className="cal-legend-item">
             <span className="cal-legend-dot" style={{ background: '#dcfce7', borderColor: '#16a34a' }} />
             Validée
-          </span>
-          <span className="cal-legend-item">
-            <span className="cal-legend-dot" style={{ background: '#fee2e2', borderColor: '#dc2626' }} />
-            Refusée
           </span>
         </div>
 

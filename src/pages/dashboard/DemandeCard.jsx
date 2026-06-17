@@ -22,8 +22,8 @@ const DemandeCard = () => {
       onClick={() => navigate('/demandes_en_attentes')}
     >
       {/* Décorations */}
-      <div className="position-absolute bg-white rounded-circle" style={{ width: '200px', height: '200px', top: '-80px', right: '-80px', opacity: 0.08 }} />
-      <div className="position-absolute bg-white rounded-circle" style={{ width: '140px', height: '140px', top: '30px', right: '-40px', opacity: 0.08 }} />
+      <div className="position-absolute bg-white rounded-circle" style={{ width: '500px', height: '500px', top: '-80px', right: '-80px', opacity: 0.08 }} />
+      <div className="position-absolute bg-white rounded-circle" style={{ width: '800px', height: '800px', top: '30px', right: '20px', opacity: 0.08 }} />
 
       <div className="card-body p-4 position-relative z-1 d-flex flex-column justify-content-between h-100">
         <div className="d-flex align-items-center justify-content-center rounded shadow-sm" style={{ width: '50px', height: '50px', backgroundColor: '#800000' }}>

@@ -37,7 +37,7 @@ const MesSalles = () => {
   });
 
   return (
-    <div className="mes-salles-wrapper">
+    <div className="mes-salles-wrapper m-1">
 
       <div className="page-header mb-4">
         <h2 className="page-header-title">
@@ -89,7 +89,7 @@ const MesSalles = () => {
         )}
 
         {!isLoading && !error && filteredSalles.length > 0 && (
-          <div className="row g-4">
+          <div className="row g-4 m-1">
             {filteredSalles.map((salle) => (
               <div key={salle.id} className="col-md-6 col-lg-4 col-xl-3">
                 <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover-effect">

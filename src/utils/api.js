@@ -1,11 +1,16 @@
-const BASE_URL = 'http://localhost:8000';
+// On récupère l'adresse du serveur depuis l'URL du navigateur.
+// Comme ça, peu importe l'IP du réseau, ça fonctionne toujours
+// tant que le PC et l'appareil sont sur le même réseau Wi-Fi.
+export const BASE_URL = `http://${window.location.hostname}:8000`;
 
 export const api = {
 
-  // ---------------------------------------------------------
-  // 1. AUTHENTIFICATION & SESSION
-  // ---------------------------------------------------------
+  // ==========================================================
+  // CONNEXION / DÉCONNEXION
+  // ==========================================================
 
+  // Envoie l'identifiant et le mot de passe à l'API,
+  // puis stocke le token reçu dans le sessionStorage.
   login: async (identifiant, password) => {
     const response = await fetch(`${BASE_URL}/api/login_check`, {
       method: 'POST',
@@ -25,32 +30,39 @@ export const api = {
     return data;
   },
 
+  // Supprime le token et redirige vers la page de connexion.
   logout: () => {
     sessionStorage.removeItem('m2l_token');
     window.location.href = '/login';
   },
 
-  // Décode le JWT et retourne { identifiant, roles }
+  // Lit le token JWT stocké et retourne les infos de l'utilisateur connecté.
+  // Le token est en 3 parties séparées par des points ; la 2e partie contient les données.
   getUser: () => {
     const token = sessionStorage.getItem('m2l_token');
     if (!token) return null;
     try {
-      const payload = JSON.parse(window.atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const payload = JSON.parse(
+        window.atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+      );
       return { identifiant: payload.username, roles: payload.roles || [] };
     } catch {
       return null;
     }
   },
 
+  // Vérifie si l'utilisateur connecté est super-administrateur.
   isSuperAdmin: () => {
     const user = api.getUser();
     return user?.roles?.includes('ROLE_SUPER_ADMIN') ?? false;
   },
 
-  // ---------------------------------------------------------
-  // 2. MÉTHODE DE BASE
-  // ---------------------------------------------------------
+  // ==========================================================
+  // REQUÊTE DE BASE (utilisée par toutes les autres méthodes)
+  // ==========================================================
 
+  // Centralise les appels à l'API : ajoute le token automatiquement
+  // et redirige vers /login si la session a expiré (code 401).
   request: async (endpoint, options = {}) => {
     const token = sessionStorage.getItem('m2l_token');
     const headers = {
@@ -62,6 +74,7 @@ export const api = {
 
     const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
 
+    // Session expirée : on déconnecte et on redirige
     if (response.status === 401) {
       sessionStorage.removeItem('m2l_token');
       window.location.href = '/login';
@@ -80,18 +93,18 @@ export const api = {
     return response;
   },
 
-  // ---------------------------------------------------------
-  // 3. PROFIL CONNECTÉ
-  // ---------------------------------------------------------
+  // ==========================================================
+  // PROFIL DE L'UTILISATEUR CONNECTÉ
+  // ==========================================================
 
   getMe: async () => {
     const res = await api.request('/api/me');
     return res.json();
   },
 
-  // ---------------------------------------------------------
-  // 4. GESTION DES GESTIONNAIRES
-  // ---------------------------------------------------------
+  // ==========================================================
+  // GESTION DES GESTIONNAIRES
+  // ==========================================================
 
   getGestionnaires: async () => {
     const res = await api.request('/api/gestionnaires');
@@ -118,9 +131,9 @@ export const api = {
     await api.request(`/api/gestionnaires/${id}`, { method: 'DELETE' });
   },
 
-  // ---------------------------------------------------------
-  // 5. GESTION DES TYPES DE SALLES
-  // ---------------------------------------------------------
+  // ==========================================================
+  // GESTION DES TYPES DE SALLES
+  // ==========================================================
 
   getTypesSalles: async () => {
     const res = await api.request('/api/types-salles');
@@ -135,16 +148,18 @@ export const api = {
     return res.json();
   },
 
-  // ---------------------------------------------------------
-  // 6. GESTION DES SALLES
-  // ---------------------------------------------------------
+  // ==========================================================
+  // GESTION DES SALLES
+  // ==========================================================
 
+  // Récupère toutes les salles (admin) ou filtrées par catégorie
   getSalles: async (categorie = null) => {
     const url = categorie ? `/api/salles?categorie=${categorie}` : '/api/salles';
     const res = await api.request(url);
     return res.json();
   },
 
+  // Récupère uniquement les salles du gestionnaire connecté
   getMesSalles: async () => {
     const res = await api.request('/api/mes-salles');
     return res.json();
@@ -175,6 +190,8 @@ export const api = {
     await api.request(`/api/salles/${id}`, { method: 'DELETE' });
   },
 
+  // Upload d'une photo — on n'utilise pas JSON ici mais FormData
+  // car on envoie un fichier binaire
   uploadPhoto: async (file) => {
     const token = sessionStorage.getItem('m2l_token');
     const formData = new FormData();
@@ -194,10 +211,11 @@ export const api = {
     return data.url;
   },
 
-  // ---------------------------------------------------------
-  // 7. GESTION DES HORAIRES
-  // ---------------------------------------------------------
+  // ==========================================================
+  // GESTION DES HORAIRES
+  // ==========================================================
 
+  // Change le statut d'un horaire (ouvert / fermé) pour un jour donné
   updateHoraireStatut: async (id, statut) => {
     const res = await api.request(`/api/horaires/${id}/statut`, {
       method: 'PATCH',
@@ -206,11 +224,11 @@ export const api = {
     return res.json();
   },
 
-  // ---------------------------------------------------------
-  // 8. GESTION DES RÉSERVATIONS
-  // ---------------------------------------------------------
+  // ==========================================================
+  // GESTION DES RÉSERVATIONS
+  // ==========================================================
 
-  // params: { date: 'YYYY-MM-DD' } (optionnel)
+  // Récupère toutes les réservations (on peut filtrer par date)
   getReservations: async (params = {}) => {
     const query = params.date ? `?date=${params.date}` : '';
     const res = await api.request(`/api/reservations${query}`);
@@ -225,6 +243,7 @@ export const api = {
     return res.json();
   },
 
+  // Valide ou refuse une réservation (VALIDEE / REFUSEE)
   updateReservationStatut: async (id, statut) => {
     const res = await api.request(`/api/reservations/${id}/statut`, {
       method: 'PATCH',

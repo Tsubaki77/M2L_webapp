@@ -14,7 +14,7 @@ const CalendarCard = () => {
 
   useEffect(() => {
     api.getReservations()
-      .then(data => setEvents(data.map(reservationToEvent)))
+      .then(data => setEvents(data.filter(r => r.statut !== 'REFUSEE').map(reservationToEvent)))
       .catch(() => setEvents([]));
   }, []);
 

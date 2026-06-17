@@ -1,7 +1,15 @@
-// Génère les 7 jours d'une semaine à partir du lundi
+// Correspondance numéro de jour → nom (1 = Lundi, ..., 7 = Dimanche)
+// Exporté ici pour éviter de le réécrire dans chaque fichier
+export const JOURS_LABELS = {
+  1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi',
+  5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche',
+};
+
+// Retourne les 7 jours de la semaine à partir du lundi
 export const getWeekDates = (date) => {
   const monday = new Date(date);
   const day = monday.getDay();
+  // Si c'est dimanche (0), on recule de 6 jours, sinon on va au lundi
   const diff = day === 0 ? -6 : 1 - day;
   monday.setDate(monday.getDate() + diff);
   monday.setHours(0, 0, 0, 0);
@@ -12,7 +20,7 @@ export const getWeekDates = (date) => {
   });
 };
 
-// Couleur selon le statut de la réservation
+// Retourne les couleurs (fond, bordure, texte) selon le statut de la réservation
 export const getColorForStatut = (statut) => {
   switch (statut) {
     case 'VALIDEE':   return { bg: '#dcfce7', border: '#16a34a', text: '#15803d' };
@@ -22,7 +30,7 @@ export const getColorForStatut = (statut) => {
   }
 };
 
-// Transforme une réservation API en event calendrier
+// Transforme une réservation reçue de l'API en un objet utilisable par le calendrier
 export const reservationToEvent = (r) => ({
   id:        r.id,
   dateDebut: new Date(r.dateDebut),
@@ -36,14 +44,16 @@ export const reservationToEvent = (r) => ({
   color:     getColorForStatut(r.statut),
 });
 
-// Parse "HH:MM" → nombre décimal d'heures (ex: "14:30" → 14.5)
+// Convertit "HH:MM" en nombre décimal d'heures (ex: "14:30" → 14.5)
+// Utilisé pour calculer la position et la hauteur des événements dans la grille
 export const parseTime = (timeStr) => {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return h + m / 60;
 };
 
-// Vérifie si un event est visible sur un jour donné
+// Vérifie si un événement doit être affiché sur un jour donné
+// (une réservation peut s'étaler sur plusieurs jours)
 export const eventOnDate = (event, date) => {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -54,7 +64,7 @@ export const eventOnDate = (event, date) => {
   return d >= debut && d <= fin;
 };
 
-// Label du statut en français
+// Retourne le libellé français du statut d'une réservation
 export const statutLabel = (statut) => {
   switch (statut) {
     case 'VALIDEE':    return 'Validée';
