@@ -1,13 +1,16 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
+// Liste fixe des équipements proposables pour une salle
 const EQUIPEMENTS = [
   'Wifi Fibre', 'Écran', 'Sonorisation', 'Équipements sportifs',
   'Machine à café', 'Climatisation', 'Tableau blanc', 'Vidéoprojecteur',
   'Table/chaises', 'Accès PMR', 'Parking', 'Espace extérieur', 'Vestiaires', 'Douches',
 ];
 
+// Formulaire à badges cliquables pour choisir les équipements d'une salle
 const EquipementsForm = ({ selected, onChange }) => {
+  // Ajoute ou retire l'équipement cliqué de la liste sélectionnée
   const toggle = (eq) => {
     onChange(
       selected.includes(eq)

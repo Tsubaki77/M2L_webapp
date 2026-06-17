@@ -2,27 +2,30 @@ import React from 'react';
 import { CalendarDays, Clock, User } from 'lucide-react';
 import { statutLabel } from '../../utils/calendarUtils';
 
+// Vue liste : affiche les réservations du mois sous forme de liste,
+// regroupées par jour
 const ListView = ({ events, activeDate, handleEventClick }) => {
-  const monthStart = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1);
+  const debutMois = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1);
 
-  const upcoming = [...events]
-    .filter(e => e.dateFin >= monthStart)
+  // On ne garde que les réservations à venir (ou en cours) ce mois-ci, triées par date
+  const aVenir = [...events]
+    .filter(e => e.dateFin >= debutMois)
     .sort((a, b) => a.dateDebut - b.dateDebut);
 
-  // Grouper par date de début
-  const groups = {};
-  upcoming.forEach(ev => {
-    const key = ev.dateDebut.toLocaleDateString('fr-FR', {
+  // On regroupe les réservations par date de début pour afficher un titre par jour
+  const groupes = {};
+  aVenir.forEach(ev => {
+    const cle = ev.dateDebut.toLocaleDateString('fr-FR', {
       weekday: 'long',
       day:     'numeric',
       month:   'long',
       year:    'numeric',
     });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(ev);
+    if (!groupes[cle]) groupes[cle] = [];
+    groupes[cle].push(ev);
   });
 
-  if (Object.keys(groups).length === 0) {
+  if (Object.keys(groupes).length === 0) {
     return (
       <div className="cal-list-empty">
         <CalendarDays size={48} className="mb-3 opacity-25" />
@@ -33,7 +36,7 @@ const ListView = ({ events, activeDate, handleEventClick }) => {
 
   return (
     <div className="cal-list custom-scroll">
-      {Object.entries(groups).map(([dateLabel, dayEvents]) => (
+      {Object.entries(groupes).map(([dateLabel, dayEvents]) => (
         <div key={dateLabel} className="cal-list-group">
           <div className="cal-list-date">{dateLabel}</div>
           {dayEvents.map(ev => (

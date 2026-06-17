@@ -10,13 +10,17 @@ const JOURS = [
   { id: 7, label: 'Dimanche' },
 ];
 
+// Formulaire des horaires d'ouverture : un interrupteur ouvert/fermé
+// par jour, avec deux champs heure si le jour est ouvert
 const HorairesForm = ({ horaires, onChange }) => {
+  // Inverse l'état ouvert/fermé d'un jour
   const toggleJour = (jourId) => {
     onChange(horaires.map((h) =>
       h.jourSemaine === jourId ? { ...h, estOuvert: !h.estOuvert } : h
     ));
   };
 
+  // Met à jour l'heure d'ouverture ou de fermeture d'un jour
   const handleHeure = (jourId, champ, valeur) => {
     onChange(horaires.map((h) =>
       h.jourSemaine === jourId ? { ...h, [champ]: valeur } : h

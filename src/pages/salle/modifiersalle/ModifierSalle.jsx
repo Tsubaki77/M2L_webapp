@@ -1,19 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { X, CheckCircle2, UploadCloud, Users, Loader2, Image, MapPin } from 'lucide-react';
-import { api } from '../../../utils/api';
+import { api, BASE_URL } from '../../../utils/api';
+import { JOURS_LABELS } from '../../../utils/calendarUtils';
 import TypeSalleSelect from '../creersalle/components/TypeSalleSelection';
 import EquipementsForm from '../creersalle/components/EquipementsForm';
 import HorairesForm    from '../creersalle/components/HorairesForm';
 
-// Correspondance jour label → numéro
+// Correspondance nom du jour → numéro (l'inverse de JOURS_LABELS),
+// utile pour relire les horaires renvoyés par l'API
 const JOURS_TO_NUM = {
   Lundi: 1, Mardi: 2, Mercredi: 3, Jeudi: 4,
   Vendredi: 5, Samedi: 6, Dimanche: 7,
 };
-const JOURS_LABELS = { 1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche' };
 
-// Convertit les horaires API → format HorairesForm
+// Transforme les horaires reçus de l'API vers le format attendu par HorairesForm
 const apiHorairesToForm = (apiHoraires = []) =>
   [1, 2, 3, 4, 5, 6, 7].map(jour => {
     const found = apiHoraires.find(h => JOURS_TO_NUM[h.jour] === jour);
@@ -25,25 +26,28 @@ const apiHorairesToForm = (apiHoraires = []) =>
     };
   });
 
+// Page de modification d'une salle existante.
+// Très proche de CreerSalle, mais on pré-remplit le formulaire avec les données actuelles.
 const ModifierSalle = () => {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const fileInputRef = useRef(null);
 
-  const [isLoading,    setIsLoading]    = useState(true);
-  const [isSaving,     setIsSaving]     = useState(false);
-  const [error,        setError]        = useState('');
-  const [typesSalles,  setTypesSalles]  = useState({ sport: [], evenement: [] });
-  const [selectedType, setSelectedType] = useState(null);
-  const [horaires,     setHoraires]     = useState([]);
-  const [photoFile,    setPhotoFile]    = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isLoading, setIsLoading]         = useState(true);
+  const [isSaving, setIsSaving]           = useState(false);
+  const [error, setError]                 = useState('');
+  const [typesSalles, setTypesSalles]     = useState({ sport: [], evenement: [] });
+  const [selectedType, setSelectedType]   = useState(null);
+  const [horaires, setHoraires]           = useState([]);
+  const [photoFile, setPhotoFile]         = useState(null);
+  const [photoPreview, setPhotoPreview]   = useState(null);
   const [existingPhoto, setExistingPhoto] = useState(null);
 
   const [formData, setFormData] = useState({
     nom: '', capacite: '', adresse: '', ville: '', description: '', equipements: [],
   });
 
+  // On charge en même temps la salle à modifier et la liste des types de salles
   useEffect(() => {
     const load = async () => {
       try {
@@ -54,17 +58,16 @@ const ModifierSalle = () => {
 
         setTypesSalles(types);
 
-        // Pré-remplissage
         setFormData({
-          nom:         salle.nom          ?? '',
-          capacite:    salle.capacite     ?? '',
-          adresse:     salle.adresse      ?? '',
-          ville:       salle.ville        ?? '',
-          description: salle.description  ?? '',
-          equipements: salle.equipements  ?? [],
+          nom:         salle.nom         ?? '',
+          capacite:    salle.capacite    ?? '',
+          adresse:     salle.adresse     ?? '',
+          ville:       salle.ville       ?? '',
+          description: salle.description ?? '',
+          equipements: salle.equipements ?? [],
         });
 
-        // Type salle : retrouver l'objet complet dans la liste
+        // On retrouve l'objet "type" complet dans la liste pour pré-sélectionner le menu
         const allTypes = [...(types.sport ?? []), ...(types.evenement ?? [])];
         const found = allTypes.find(t =>
           t.libelle === salle.typeSalle?.libelle &&
@@ -72,13 +75,11 @@ const ModifierSalle = () => {
         );
         setSelectedType(found ?? salle.typeSalle ?? null);
 
-        // Horaires
         setHoraires(apiHorairesToForm(salle.horaires));
 
-        // Photo existante
         if (salle.photo) {
-          setExistingPhoto(`http://localhost:8000${salle.photo}`);
-          setPhotoPreview(`http://localhost:8000${salle.photo}`);
+          setExistingPhoto(`${BASE_URL}${salle.photo}`);
+          setPhotoPreview(`${BASE_URL}${salle.photo}`);
         }
       } catch (err) {
         setError(err.message || 'Impossible de charger la salle.');
@@ -117,13 +118,15 @@ const ModifierSalle = () => {
     try {
       setIsSaving(true);
 
-      // Photo : uploader seulement si un nouveau fichier a été sélectionné
+      // On ne ré-upload la photo que si l'utilisateur en a choisi une nouvelle,
+      // sinon on garde celle qui existait déjà
       let photo = existingPhoto ?? null;
       if (photoFile) {
         photo = await api.uploadPhoto(photoFile);
       }
 
-      // Transformation horaires → format API (tous les 7 jours)
+      // Ici on garde les 7 jours (contrairement à la création) pour pouvoir
+      // repasser un jour de "ouvert" à "fermé"
       const horairesApi = horaires.map(h => ({
         jour:           JOURS_LABELS[h.jourSemaine],
         heureOuverture: h.heureOuverture,
@@ -171,7 +174,6 @@ const ModifierSalle = () => {
           <form onSubmit={handleSubmit}>
             <div className="row g-4">
 
-              {/* COLONNE GAUCHE */}
               <div className="col-lg-6">
                 <div className="creer-salle-card">
                   <h5 className="creer-salle-card-title">Informations de base</h5>
@@ -219,7 +221,6 @@ const ModifierSalle = () => {
                 </div>
               </div>
 
-              {/* COLONNE DROITE */}
               <div className="col-lg-6">
                 <div className="creer-salle-card mb-4">
                   <h5 className="creer-salle-card-title">Équipements disponibles</h5>
@@ -235,7 +236,6 @@ const ModifierSalle = () => {
                 </div>
               </div>
 
-              {/* PHOTO */}
               <div className="col-12">
                 <label className="creer-salle-label">Photo de la salle</label>
                 <input
@@ -261,7 +261,6 @@ const ModifierSalle = () => {
                 )}
               </div>
 
-              {/* BOUTONS */}
               <div className="col-12 mb-5 mt-3 d-flex gap-3">
                 <button
                   type="button"

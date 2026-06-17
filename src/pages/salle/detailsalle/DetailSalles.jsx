@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { MapPin, ArrowLeft, Trophy, Building2 } from 'lucide-react';
-import { api } from '../../../utils/api';
+import { api, BASE_URL } from '../../../utils/api';
 import SalleCaracteristiques from './components/SalleCaracteristiques';
 import SalleAvis from './components/SalleAvis';
 import SalleAdministration from './components/SalleAdministration';
 
+// Page de détail d'une salle : photo, caractéristiques, avis et actions d'administration
 const DetailSalles = () => {
   const { id }   = useParams();
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const DetailSalles = () => {
 
   useEffect(() => { fetchSalle(); }, [fetchSalle]);
 
+  // Mise à jour locale du statut d'un horaire, sans recharger toute la page
   const handleHoraireStatutChange = (horaireId, nouveauStatut) => {
     setSalle((prev) => ({
       ...prev,
@@ -78,7 +80,7 @@ const DetailSalles = () => {
 
           <div className="detail-salle-photo mb-4">
             <img
-              src={salle.photo ? `http://localhost:8000${salle.photo}` : '/assets/estetic/salle-placeholder.png'}
+              src={salle.photo ? `${BASE_URL}${salle.photo}` : '/assets/estetic/salle-placeholder.png'}
               alt={salle.nom}
               className="w-100 h-100 object-fit-cover"
             />

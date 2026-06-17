@@ -6,11 +6,11 @@ import { api } from '../../utils/api';
 const Login = () => {
   const navigate = useNavigate();
 
-  const [identifiant, setIdentifiant] = useState('');
-  const [password, setPassword]       = useState('');
+  const [identifiant, setIdentifiant]   = useState('');
+  const [password, setPassword]         = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError]             = useState('');
-  const [isLoading, setIsLoading]     = useState(false);
+  const [error, setError]               = useState('');
+  const [isLoading, setIsLoading]       = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,9 +25,10 @@ const Login = () => {
       setIsLoading(true);
 
       await api.login(identifiant, password);
-
       const user = api.getUser();
 
+      // Cette application web est réservée aux gestionnaires :
+      // si la personne connectée n'a pas ce rôle, on refuse l'accès
       if (!user || !user.roles.includes('ROLE_GESTIONNAIRE')) {
         sessionStorage.removeItem('m2l_token');
         setError("Accès refusé : vous n'êtes pas gestionnaire.");
@@ -38,7 +39,7 @@ const Login = () => {
 
     } catch (err) {
       setError("L'identifiant ou le mot de passe est incorrect");
-      console.error('Erreur de connexion:', err);
+      console.error('Erreur de connexion :', err);
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +48,7 @@ const Login = () => {
   return (
     <div className="login-wrapper">
 
-      {/* ── GAUCHE : FORMULAIRE ── */}
+      {/* Partie gauche : le formulaire de connexion */}
       <div className="login-form-panel">
         <div className="login-form-inner">
 
@@ -106,11 +107,7 @@ const Login = () => {
               </Link>
             </div>
 
-            <button
-              type="submit"
-              className="login-submit-btn"
-              disabled={isLoading}
-            >
+            <button type="submit" className="login-submit-btn" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 size={20} className="login-spinner" />
@@ -125,7 +122,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ── DROITE : VISUEL ── */}
+      {/* Partie droite : image et présentation, cachée sur petit écran */}
       <div className="login-visual-panel">
         <div className="login-visual-overlay" />
         <div className="login-visual-content">
@@ -137,7 +134,7 @@ const Login = () => {
             {[
               'Validation rapide des demandes de réservation',
               "Suivi en direct de l'occupation des salles",
-              'Administration centralisée des équipements sportifs'
+              'Administration centralisée des équipements sportifs',
             ].map((feature) => (
               <li key={feature} className="login-feature-item">
                 <span className="login-feature-icon">

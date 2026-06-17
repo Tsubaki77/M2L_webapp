@@ -2,9 +2,9 @@ import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { api } from '../../../../utils/api';
 
+// Bloc "Caractéristiques" de la fiche salle : capacité, adresse, équipements,
+// description et horaires (avec un bouton pour ouvrir/fermer un jour)
 const SalleCaracteristiques = ({ salle, onHoraireStatutChange }) => {
-  const isSuperAdmin = api.isSuperAdmin();
-
   const handleToggleStatut = async (horaire) => {
     const nouveauStatut = horaire.statut === 'ouvert' ? 'ferme' : 'ouvert';
     try {

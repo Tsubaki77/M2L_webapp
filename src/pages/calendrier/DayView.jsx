@@ -2,19 +2,19 @@ import React from 'react';
 import { CalendarDays } from 'lucide-react';
 import { eventOnDate, parseTime } from '../../utils/calendarUtils';
 
-const HOUR_START = 7;
-const HOUR_END   = 22;
-const HOUR_H     = 64;
+const HEURE_DEBUT  = 7;
+const HEURE_FIN     = 22;
+const HAUTEUR_HEURE = 64;
 
+// Vue jour : la même grille horaire que la vue semaine, mais avec une seule colonne
 const DayView = ({ events, activeDate, handleEventClick }) => {
   const dayEvents = events.filter(e => eventOnDate(e, activeDate));
-  const hours     = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
+  const heures    = Array.from({ length: HEURE_FIN - HEURE_DEBUT }, (_, i) => HEURE_DEBUT + i);
   const isToday   = activeDate.toDateString() === new Date().toDateString();
 
   return (
     <div className="cal-timegrid-wrapper">
 
-      {/* ── En-tête ── */}
       <div className="cal-timegrid-header">
         <div className="cal-timegrid-gutter" />
         <div className={`cal-timegrid-col-header${isToday ? ' today' : ''}`} style={{ flex: 1 }}>
@@ -27,26 +27,23 @@ const DayView = ({ events, activeDate, handleEventClick }) => {
         </div>
       </div>
 
-      {/* ── Corps ── */}
       <div className="cal-timegrid-body custom-scroll">
-        <div className="cal-timegrid-inner" style={{ height: `${(HOUR_END - HOUR_START) * HOUR_H}px` }}>
+        <div className="cal-timegrid-inner" style={{ height: `${(HEURE_FIN - HEURE_DEBUT) * HAUTEUR_HEURE}px` }}>
 
-          {/* Heures */}
           <div className="cal-timegrid-hours">
-            {hours.map(h => (
-              <div key={h} className="cal-timegrid-hour-label" style={{ height: `${HOUR_H}px` }}>
+            {heures.map(h => (
+              <div key={h} className="cal-timegrid-hour-label" style={{ height: `${HAUTEUR_HEURE}px` }}>
                 {String(h).padStart(2, '0')}:00
               </div>
             ))}
           </div>
 
-          {/* Colonne unique */}
           <div className="cal-timegrid-col" style={{ flex: 1 }}>
-            {hours.map(h => (
+            {heures.map(h => (
               <div
                 key={h}
                 className="cal-timegrid-hour-line"
-                style={{ top: `${(h - HOUR_START) * HOUR_H}px` }}
+                style={{ top: `${(h - HEURE_DEBUT) * HAUTEUR_HEURE}px` }}
               />
             ))}
 
@@ -58,10 +55,10 @@ const DayView = ({ events, activeDate, handleEventClick }) => {
             )}
 
             {dayEvents.map(ev => {
-              const start  = parseTime(ev.heureDebut);
-              const end    = parseTime(ev.heureFin);
-              const top    = (start - HOUR_START) * HOUR_H;
-              const height = Math.max((end - start) * HOUR_H, 30);
+              const debut  = parseTime(ev.heureDebut);
+              const fin    = parseTime(ev.heureFin);
+              const top    = (debut - HEURE_DEBUT) * HAUTEUR_HEURE;
+              const height = Math.max((fin - debut) * HAUTEUR_HEURE, 30);
 
               return (
                 <div

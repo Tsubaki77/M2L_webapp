@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarCheck, History, UserCog, Trash2 } from 'lucide-react';
 import { api } from '../../../../utils/api';
 
+// Bloc latéral "Administration" de la fiche salle :
+// accès rapide au planning, modification, suppression et historique
 const SalleAdministration = ({ salle, onDelete }) => {
   const navigate     = useNavigate();
   const isSuperAdmin = api.isSuperAdmin();
@@ -21,6 +23,7 @@ const SalleAdministration = ({ salle, onDelete }) => {
     }
   };
 
+  // Petit historique basé sur les dates de création/modification de la salle
   const logs = [
     salle.createdAt && {
       date:   new Date(salle.createdAt).toLocaleDateString('fr-FR'),
@@ -37,7 +40,7 @@ const SalleAdministration = ({ salle, onDelete }) => {
   return (
     <div className="d-flex flex-column gap-4">
 
-      {/* Disponibilité */}
+      {/* Accès rapide au planning de la salle */}
       <div className="card detail-salle-card">
         <div className="card-body p-4 text-center">
           <h5 className="detail-salle-section-title">Disponibilité</h5>
@@ -50,7 +53,7 @@ const SalleAdministration = ({ salle, onDelete }) => {
         </div>
       </div>
 
-      {/* Administration */}
+      {/* Modifier / supprimer la salle + historique */}
       <div className="card detail-salle-card">
         <div className="card-body p-4">
           <h5 className="detail-salle-section-title">Administration</h5>

@@ -1,30 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X, Loader2, Users } from 'lucide-react';
+import { Plus, Pencil, Check, Trash2, X, Loader2, Users } from 'lucide-react';
 import { api } from '../../utils/api';
 
-const EMPTY_FORM = {
-  identifiant:        '',
-  email:              '',
-  nom:                '',
-  prenom:             '',
-  mot_de_passe:       '',
-  nouveau_mot_de_passe: '',
+// Valeurs vides du formulaire, utilisées à la création et à la réinitialisation.
+// "password" sert de mot de passe à la création, et de "nouveau mot de passe"
+// (optionnel) en modification.
+const FORMULAIRE_VIDE = {
+  identifiant: '',
+  email:       '',
+  nom:         '',
+  prenom:      '',
+  telephone:   '',
+  password:    '',
 };
 
+// Page réservée aux super-administrateurs : liste, création, modification,
+// activation/désactivation et suppression des comptes gestionnaires
 const GestionnairesPage = () => {
-  const [gestionnaires, setGestionnaires]     = useState([]);
-  const [isLoading,     setIsLoading]         = useState(true);
-  const [error,         setError]             = useState('');
+  const [gestionnaires, setGestionnaires] = useState([]);
+  const [isLoading, setIsLoading]         = useState(true);
+  const [error, setError]                 = useState('');
 
-  // Modale
-  const [showModal, setShowModal]   = useState(false);
-  const [editing,   setEditing]     = useState(null); // null = création, objet = édition
-  const [form,      setForm]        = useState(EMPTY_FORM);
-  const [saving,    setSaving]      = useState(false);
-  const [formError, setFormError]   = useState('');
+  // États de la fenêtre modale (création / édition)
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing]     = useState(null); // null = création, sinon objet en cours d'édition
+  const [form, setForm]           = useState(FORMULAIRE_VIDE);
+  const [saving, setSaving]       = useState(false);
+  const [formError, setFormError] = useState('');
 
-  // Suppression
-  const [deletingId, setDeletingId] = useState(null);
+  // Id du gestionnaire en cours de suppression ou de changement de statut
+  // (pour afficher le spinner sur le bon bouton de la bonne ligne)
+  const [deletingId, setDeletingId]  = useState(null);
+  const [togglingId, setTogglingId]  = useState(null);
 
   const fetchGestionnaires = useCallback(async () => {
     setIsLoading(true);
@@ -40,11 +47,9 @@ const GestionnairesPage = () => {
 
   useEffect(() => { fetchGestionnaires(); }, [fetchGestionnaires]);
 
-  // ── Modale ──
-
   const openCreate = () => {
     setEditing(null);
-    setForm(EMPTY_FORM);
+    setForm(FORMULAIRE_VIDE);
     setFormError('');
     setShowModal(true);
   };
@@ -52,12 +57,12 @@ const GestionnairesPage = () => {
   const openEdit = (g) => {
     setEditing(g);
     setForm({
-      identifiant:          g.identifiant ?? '',
-      email:                g.email       ?? '',
-      nom:                  g.nom         ?? '',
-      prenom:               g.prenom      ?? '',
-      mot_de_passe:         '',
-      nouveau_mot_de_passe: '',
+      identifiant: g.identifiant ?? '',
+      email:       g.email       ?? '',
+      nom:         g.nom         ?? '',
+      prenom:      g.prenom      ?? '',
+      telephone:   g.telephone   ?? '',
+      password:    '',
     });
     setFormError('');
     setShowModal(true);
@@ -79,15 +84,14 @@ const GestionnairesPage = () => {
     setSaving(true);
     try {
       if (editing) {
-        // Mise à jour : n'envoyer que les champs renseignés
+        // En modification, on n'envoie que les champs réellement remplis
+        // (le mot de passe ne change que si on en a saisi un nouveau)
         const payload = {};
-        if (form.nom)                  payload.nom                  = form.nom;
-        if (form.prenom)               payload.prenom               = form.prenom;
-        if (form.email)                payload.email                = form.email;
-        if (form.nouveau_mot_de_passe) {
-          payload.mot_de_passe         = form.mot_de_passe;
-          payload.nouveau_mot_de_passe = form.nouveau_mot_de_passe;
-        }
+        if (form.nom)       payload.nom       = form.nom;
+        if (form.prenom)    payload.prenom    = form.prenom;
+        if (form.email)     payload.email     = form.email;
+        if (form.telephone) payload.telephone = form.telephone;
+        if (form.password)  payload.password  = form.password;
         await api.updateGestionnaire(editing.id, payload);
       } else {
         await api.createGestionnaire({
@@ -95,7 +99,8 @@ const GestionnairesPage = () => {
           email:       form.email,
           nom:         form.nom,
           prenom:      form.prenom,
-          mot_de_passe: form.mot_de_passe,
+          telephone:   form.telephone,
+          password:    form.password,
         });
       }
       closeModal();
@@ -107,7 +112,19 @@ const GestionnairesPage = () => {
     }
   };
 
-  // ── Suppression ──
+  // Bascule un compte entre actif et inactif (sans le supprimer)
+  const handleToggleStatut = async (g) => {
+    const nouveauStatut = g.statut === 'actif' ? 'inactif' : 'actif';
+    setTogglingId(g.id);
+    try {
+      await api.updateGestionnaireStatut(g.id, nouveauStatut);
+      setGestionnaires(prev => prev.map(x => (x.id === g.id ? { ...x, statut: nouveauStatut } : x)));
+    } catch (err) {
+      alert(err.message || 'Erreur lors du changement de statut.');
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const handleDelete = async (g) => {
     if (!confirm(`Supprimer le gestionnaire "${g.identifiant}" ?`)) return;
@@ -121,8 +138,6 @@ const GestionnairesPage = () => {
       setDeletingId(null);
     }
   };
-
-  // ── Rendu ──
 
   if (isLoading) return (
     <div className="gest-state">
@@ -140,18 +155,18 @@ const GestionnairesPage = () => {
   return (
     <div className="gest-wrapper">
 
-      {/* ── Header ── */}
-      <div className="gest-header">
-        <div>
-          <h5 className="gest-header-title">Gestionnaires ({gestionnaires.length})</h5>
-          <p className="gest-header-sub">Gérez les comptes gestionnaires de la plateforme.</p>
-        </div>
+      <div className="page-header mb-4">
+        <h2 className="page-header-title d-flex align-items-center gap-2">
+          <Users size={20} /> Gestion des comptes
+        </h2>
+      </div>
+
+      <div className="gest-toolbar">
         <button className="btn bg-m2l-red text-white rounded-pill d-flex align-items-center gap-2 px-4" onClick={openCreate}>
-          <Plus size={17} /> Nouveau gestionnaire
+          <Plus size={17} /> Ajouter un gestionnaire
         </button>
       </div>
 
-      {/* ── Tableau ── */}
       {gestionnaires.length === 0 ? (
         <div className="gest-empty">
           <Users size={48} className="mb-3 text-muted opacity-50" />
@@ -163,34 +178,55 @@ const GestionnairesPage = () => {
             <thead className="gest-thead">
               <tr>
                 <th>Identifiant</th>
-                <th>Nom complet</th>
-                <th>Email</th>
-                <th className="text-end">Actions</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>E-mail</th>
+                <th>Téléphone</th>
+                <th>Statut</th>
+                <th className="text-end">Actes</th>
               </tr>
             </thead>
             <tbody>
               {gestionnaires.map(g => (
                 <tr key={g.id}>
                   <td className="fw-bold text-dark align-middle">{g.identifiant}</td>
-                  <td className="align-middle">{g.prenom} {g.nom}</td>
+                  <td className="align-middle">{g.nom}</td>
+                  <td className="align-middle">{g.prenom}</td>
                   <td className="align-middle text-muted">{g.email}</td>
+                  <td className="align-middle text-muted">{g.telephone || '—'}</td>
+                  <td className="align-middle">
+                    <span className={`gest-statut-badge ${g.statut}`}>
+                      {g.statut === 'actif' ? 'Actif' : 'Inactif'}
+                    </span>
+                  </td>
                   <td className="align-middle text-end">
                     <button
-                      className="btn btn-sm btn-light border me-2"
+                      className="gest-action-btn"
                       onClick={() => openEdit(g)}
                       title="Modifier"
                     >
-                      <Pencil size={14} />
+                      <Pencil size={16} />
                     </button>
                     <button
-                      className="btn btn-sm btn-outline-danger"
+                      className="gest-action-btn"
+                      onClick={() => handleToggleStatut(g)}
+                      disabled={togglingId === g.id}
+                      title={g.statut === 'actif' ? 'Désactiver le compte' : 'Réactiver le compte'}
+                    >
+                      {togglingId === g.id
+                        ? <Loader2 size={16} className="spinner-icon" />
+                        : <Check size={16} />
+                      }
+                    </button>
+                    <button
+                      className="gest-action-btn"
                       onClick={() => handleDelete(g)}
                       disabled={deletingId === g.id}
                       title="Supprimer"
                     >
                       {deletingId === g.id
-                        ? <Loader2 size={14} className="spinner-icon" />
-                        : <Trash2 size={14} />
+                        ? <Loader2 size={16} className="spinner-icon" />
+                        : <Trash2 size={16} />
                       }
                     </button>
                   </td>
@@ -201,7 +237,7 @@ const GestionnairesPage = () => {
         </div>
       )}
 
-      {/* ── Modale création / édition ── */}
+      {/* Fenêtre modale partagée pour créer ou modifier un gestionnaire */}
       {showModal && (
         <>
           <div className="gest-backdrop" />
@@ -220,6 +256,7 @@ const GestionnairesPage = () => {
                     {formError && <div className="login-error mb-3">{formError}</div>}
 
                     <div className="row g-3">
+                      {/* L'identifiant ne peut être saisi qu'à la création */}
                       {!editing && (
                         <div className="col-12">
                           <label className="creer-salle-label">Identifiant *</label>
@@ -255,7 +292,7 @@ const GestionnairesPage = () => {
                         />
                       </div>
 
-                      <div className="col-12">
+                      <div className="col-md-6">
                         <label className="creer-salle-label">Email</label>
                         <input
                           type="email"
@@ -265,45 +302,31 @@ const GestionnairesPage = () => {
                           onChange={handleChange}
                         />
                       </div>
+                      <div className="col-md-6">
+                        <label className="creer-salle-label">Téléphone</label>
+                        <input
+                          type="tel"
+                          name="telephone"
+                          className="form-control"
+                          value={form.telephone}
+                          onChange={handleChange}
+                        />
+                      </div>
 
-                      {!editing ? (
-                        <div className="col-12">
-                          <label className="creer-salle-label">Mot de passe *</label>
-                          <input
-                            type="password"
-                            name="mot_de_passe"
-                            className="form-control"
-                            value={form.mot_de_passe}
-                            onChange={handleChange}
-                            required
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="col-12">
-                            <label className="creer-salle-label">Mot de passe actuel (requis pour changer)</label>
-                            <input
-                              type="password"
-                              name="mot_de_passe"
-                              className="form-control"
-                              value={form.mot_de_passe}
-                              onChange={handleChange}
-                              autoComplete="current-password"
-                            />
-                          </div>
-                          <div className="col-12">
-                            <label className="creer-salle-label">Nouveau mot de passe</label>
-                            <input
-                              type="password"
-                              name="nouveau_mot_de_passe"
-                              className="form-control"
-                              value={form.nouveau_mot_de_passe}
-                              onChange={handleChange}
-                              autoComplete="new-password"
-                            />
-                          </div>
-                        </>
-                      )}
+                      <div className="col-12">
+                        <label className="creer-salle-label">
+                          {editing ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe *'}
+                        </label>
+                        <input
+                          type="password"
+                          name="password"
+                          className="form-control"
+                          value={form.password}
+                          onChange={handleChange}
+                          required={!editing}
+                          autoComplete="new-password"
+                        />
+                      </div>
                     </div>
                   </div>
 

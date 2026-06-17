@@ -127,6 +127,15 @@ export const api = {
     return res.json();
   },
 
+  // Active ou désactive le compte d'un gestionnaire (statut: 'actif' | 'inactif')
+  updateGestionnaireStatut: async (id, statut) => {
+    const res = await api.request(`/api/gestionnaires/${id}/statut`, {
+      method: 'PATCH',
+      body: JSON.stringify({ statut }),
+    });
+    return res.json();
+  },
+
   deleteGestionnaire: async (id) => {
     await api.request(`/api/gestionnaires/${id}`, { method: 'DELETE' });
   },

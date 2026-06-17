@@ -7,20 +7,24 @@ import {
 import { api } from '../../utils/api';
 import { statutLabel, getColorForStatut } from '../../utils/calendarUtils';
 
+// Page de détail d'une demande de réservation : informations complètes
+// + boutons pour valider/refuser si elle est encore en attente
 const DetailDemandeReservation = () => {
-  const { id }       = useParams();
-  const navigate     = useNavigate();
-  const location     = useLocation();
+  const { id }   = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [reservation, setReservation] = useState(null);
-  const [isLoading,   setIsLoading]   = useState(true);
-  const [error,       setError]       = useState('');
-  const [actionId,    setActionId]    = useState(null); // 'VALIDEE' | 'REFUSEE'
+  const [isLoading, setIsLoading]     = useState(true);
+  const [error, setError]             = useState('');
+  const [actionId, setActionId]       = useState(null); // 'VALIDEE' ou 'REFUSEE' pendant l'action en cours
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
       try {
+        // L'API ne propose pas de route "une seule réservation" :
+        // on récupère donc la liste complète et on cherche celle qui nous intéresse
         const data = await api.getReservations();
         const found = data.find(r => r.id === parseInt(id));
         if (!found) {
@@ -67,6 +71,7 @@ const DetailDemandeReservation = () => {
   );
 
   const color      = getColorForStatut(reservation.statut);
+  // Quand on arrive depuis le calendrier, on affiche juste les infos sans les boutons d'action
   const isReadOnly = location.state?.fromCalendar ?? false;
 
   const formatDate = (dateStr) =>
@@ -77,7 +82,7 @@ const DetailDemandeReservation = () => {
   return (
     <div className="demande-wrapper">
 
-      {/* ── Header ── */}
+      {/* En-tête avec bouton retour et statut */}
       <div className="demande-header">
         <button className="btn btn-light rounded-circle" onClick={() => navigate(-1)}>
           <ArrowLeft size={20} style={{ color: 'var(--m2l-dark-red)' }} />
@@ -93,14 +98,12 @@ const DetailDemandeReservation = () => {
         </div>
       </div>
 
-      {/* ── Contenu ── */}
       <div className="demande-body custom-scroll">
         <div className="row g-4">
 
-          {/* ── Colonne principale ── */}
+          {/* Colonne principale : demandeur + détails */}
           <div className="col-lg-8">
 
-            {/* Demandeur */}
             <div className="card demande-card mb-4">
               <div className="card-body p-4">
                 <h6 className="demande-section-title">Demandeur</h6>
@@ -125,13 +128,12 @@ const DetailDemandeReservation = () => {
               </div>
             </div>
 
-            {/* Détails */}
             <div className="card demande-card mb-4">
               <div className="card-body p-4">
                 <h6 className="demande-section-title">Détails de la réservation</h6>
 
                 <div className="row g-3">
-                  {/* Dates */}
+
                   <div className="col-md-6">
                     <div className="demande-info-block">
                       <Calendar size={16} className="text-muted me-2 flex-shrink-0" />
@@ -149,7 +151,6 @@ const DetailDemandeReservation = () => {
                     </div>
                   </div>
 
-                  {/* Horaires */}
                   <div className="col-md-6">
                     <div className="demande-info-block">
                       <Clock size={16} className="text-muted me-2 flex-shrink-0" />
@@ -162,7 +163,6 @@ const DetailDemandeReservation = () => {
                     </div>
                   </div>
 
-                  {/* Motif */}
                   <div className="col-12">
                     <div className="demande-info-block">
                       <Users size={16} className="text-muted me-2 flex-shrink-0" />
@@ -173,7 +173,6 @@ const DetailDemandeReservation = () => {
                     </div>
                   </div>
 
-                  {/* Salle */}
                   {reservation.salle && (
                     <div className="col-12">
                       <div className="demande-info-block">
@@ -190,7 +189,7 @@ const DetailDemandeReservation = () => {
                   )}
                 </div>
 
-                {/* Actions */}
+                {/* Boutons Valider/Refuser, seulement si la demande est encore en attente */}
                 {!isReadOnly && reservation.statut === 'EN_ATTENTE' && (
                   <div className="d-flex gap-3 mt-4 pt-3 border-top">
                     <button
@@ -218,7 +217,6 @@ const DetailDemandeReservation = () => {
                   </div>
                 )}
 
-                {/* Statut déjà traité */}
                 {!isReadOnly && reservation.statut !== 'EN_ATTENTE' && (
                   <div
                     className="mt-4 p-3 rounded-3 d-flex align-items-center gap-2 small fw-bold"
@@ -232,7 +230,7 @@ const DetailDemandeReservation = () => {
             </div>
           </div>
 
-          {/* ── Colonne salle ── */}
+          {/* Colonne secondaire : infos sur la salle réservée */}
           {reservation.salle && (
             <div className="col-lg-4">
               <div className="card demande-card">

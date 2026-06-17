@@ -54,7 +54,7 @@ L'application est alors disponible sur `http://localhost:5173` (et accessible de
 
 - **Authentification multi-facteurs (MFA)** pour renforcer la sécurité des comptes gestionnaires
 - **Messagerie interne** entre un gestionnaire et un adhérent, limitée au contexte d'une réservation en cours (pour échanger des informations complémentaires sur une demande)
-- **Vrais commentaires/avis sur les salles** : les avis affichés sont actuellement des données mockées (`salleData.js`) et non de réels retours d'adhérents ; il faudrait brancher cette fonctionnalité sur une vraie entité côté API
+- **Vrais commentaires/avis sur les salles** : les avis affichés sont actuellement des données mockées (`SalleAvis.jsx`) et non de réels retours d'adhérents ; il faudrait brancher cette fonctionnalité sur une vraie entité côté API
 - **Modération des commentaires** une fois ceux-ci réels (signalement, validation/masquage par un gestionnaire ou un administrateur)
 - **Notifications** (email ou in-app) lors d'une nouvelle demande de réservation, lors 'un changement de statut de réservation, pour informer l'adhérent sans qu'il ait à revenir consulter l'application.
 - **Statistiques d'usage des salles** (taux d'occupation, salles les plus demandées) pour aider la M2L à piloter ses infrastructures

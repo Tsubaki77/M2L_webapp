@@ -4,6 +4,7 @@ import { Check, X, ChevronRight, Calendar, User, Loader2, Clock } from 'lucide-r
 import { api } from '../../utils/api';
 import { statutLabel, getColorForStatut } from '../../utils/calendarUtils';
 
+// Boutons de filtre disponibles en haut de la page
 const STATUTS = [
   { value: 'all',        label: 'Toutes' },
   { value: 'EN_ATTENTE', label: 'En attente' },
@@ -11,6 +12,7 @@ const STATUTS = [
   { value: 'REFUSEE',    label: 'Refusées' },
 ];
 
+// Page qui liste toutes les demandes de réservation et permet de les valider/refuser
 const ListeDemandes = () => {
   const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
@@ -33,9 +35,11 @@ const ListeDemandes = () => {
 
   useEffect(() => { fetchReservations(); }, [fetchReservations]);
 
+  // Appelée quand on clique sur "Valider" ou "Refuser"
   const handleStatut = async (id, statut) => {
     try {
       await api.updateReservationStatut(id, statut);
+      // On met à jour la liste affichée sans recharger toute la page
       setReservations((prev) =>
         prev.map((r) => (r.id === id ? { ...r, statut } : r))
       );
@@ -63,7 +67,7 @@ const ListeDemandes = () => {
             <h2 className="page-header-title">Demandes de réservation : {reservations.length}</h2>
           </div>
 
-          {/* Filtres */}
+          {/* Boutons de filtre par statut */}
           <div className="d-flex gap-2 mb-3 flex-shrink-0 px-1">
             {STATUTS.map((s) => (
               <button
@@ -79,6 +83,7 @@ const ListeDemandes = () => {
             ))}
           </div>
 
+          {/* Liste des demandes filtrées */}
           <div className="flex-grow-1 overflow-y-auto custom-scroll px-1">
             <div className="d-flex flex-column gap-3">
               {filtered.map((r) => {
@@ -92,7 +97,7 @@ const ListeDemandes = () => {
                     <div className="flex-grow-1" style={{ minWidth: 0 }}>
                       <div className="row w-100 align-items-center m-0 text-nowrap">
 
-                        {/* Demandeur */}
+                        {/* Nom de l'adhérent qui a fait la demande */}
                         <div className="col-3 d-flex align-items-center ps-0 overflow-hidden">
                           <User size={16} className="me-2 text-secondary flex-shrink-0" />
                           <div className="overflow-hidden">
@@ -105,7 +110,7 @@ const ListeDemandes = () => {
                           </div>
                         </div>
 
-                        {/* Dates */}
+                        {/* Dates de la réservation */}
                         <div className="col-4 d-flex align-items-center border-start ps-3 overflow-hidden">
                           <Calendar size={16} className="me-2 text-secondary flex-shrink-0" />
                           <span className="text-secondary small text-truncate">
@@ -115,7 +120,7 @@ const ListeDemandes = () => {
                           </span>
                         </div>
 
-                        {/* Horaires */}
+                        {/* Créneau horaire */}
                         <div className="col-3 d-flex align-items-center border-start ps-3 overflow-hidden">
                           <Clock size={16} className="me-2 text-secondary flex-shrink-0" />
                           <span className="text-secondary small text-truncate">
@@ -123,7 +128,7 @@ const ListeDemandes = () => {
                           </span>
                         </div>
 
-                        {/* Statut */}
+                        {/* Badge du statut */}
                         <div className="col-2 d-flex justify-content-end">
                           <span
                             className="badge rounded-pill small fw-bold px-3 py-2"
@@ -136,6 +141,7 @@ const ListeDemandes = () => {
                       </div>
                     </div>
 
+                    {/* Boutons d'action : seulement si la demande est en attente */}
                     <div className="d-flex align-items-center gap-2 border-start ps-3 flex-shrink-0">
                       {r.statut === 'EN_ATTENTE' && (
                         <>

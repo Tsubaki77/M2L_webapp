@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, CheckCircle2, UploadCloud, Users, Loader2, Image, MapPin } from 'lucide-react';
 import { api } from '../../../utils/api';
+import { JOURS_LABELS } from '../../../utils/calendarUtils';
 import TypeSalleSelect from './components/TypeSalleSelection';
 import EquipementsForm from './components/EquipementsForm';
 import HorairesForm from './components/HorairesForm';
 
-const JOURS_LABELS = { 1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche' };
-
+// Valeur de départ des horaires : les 7 jours fermés par défaut
 const HORAIRES_DEFAUT = [1, 2, 3, 4, 5, 6, 7].map((jour) => ({
   jourSemaine: jour,
   estOuvert: false,
@@ -15,6 +15,7 @@ const HORAIRES_DEFAUT = [1, 2, 3, 4, 5, 6, 7].map((jour) => ({
   heureFermeture: '22:00',
 }));
 
+// Page de création d'une nouvelle salle
 const CreerSalle = () => {
   const navigate     = useNavigate();
   const fileInputRef = useRef(null);
@@ -32,6 +33,8 @@ const CreerSalle = () => {
     nom: '', capacite: '', adresse: '', ville: '', description: '', equipements: [],
   });
 
+  // Au chargement de la page, on récupère les types de salles existants
+  // pour les proposer dans le menu déroulant
   useEffect(() => {
     api.getTypesSalles()
       .then((data) => {
@@ -70,12 +73,13 @@ const CreerSalle = () => {
     try {
       setIsLoading(true);
 
+      // On envoie d'abord la photo (si une a été choisie) pour récupérer son URL
       let photo = null;
       if (photoFile) {
         photo = await api.uploadPhoto(photoFile);
       }
 
-      // Transformation du format horaires interne → format API
+      // On ne garde que les jours ouverts, au format attendu par l'API
       const horairesApi = horaires
         .filter((h) => h.estOuvert)
         .map((h) => ({
@@ -118,7 +122,7 @@ const CreerSalle = () => {
           <form onSubmit={handleSubmit}>
             <div className="row g-4">
 
-              {/* COLONNE GAUCHE */}
+              {/* Colonne gauche : informations générales */}
               <div className="col-lg-6">
                 <div className="creer-salle-card">
                   <h5 className="creer-salle-card-title">Informations de base</h5>
@@ -166,7 +170,7 @@ const CreerSalle = () => {
                 </div>
               </div>
 
-              {/* COLONNE DROITE */}
+              {/* Colonne droite : équipements et horaires */}
               <div className="col-lg-6">
                 <div className="creer-salle-card mb-4">
                   <h5 className="creer-salle-card-title">Équipements disponibles</h5>
@@ -182,7 +186,7 @@ const CreerSalle = () => {
                 </div>
               </div>
 
-              {/* PHOTO */}
+              {/* Photo de la salle */}
               <div className="col-12">
                 <label className="creer-salle-label">Photo de la salle</label>
                 <input
@@ -208,7 +212,7 @@ const CreerSalle = () => {
                 )}
               </div>
 
-              {/* BOUTONS */}
+              {/* Boutons annuler / enregistrer */}
               <div className="col-12 mb-5 mt-3 d-flex gap-3">
                 <button type="button" className="btn bg-m2l-dark rounded-pill py-3 fw-bold w-50 text-white" onClick={() => setShowCancelModal(true)} disabled={isLoading}>
                   <X size={18} className="me-2" /> Annuler
@@ -226,6 +230,7 @@ const CreerSalle = () => {
         </div>
       </div>
 
+      {/* Petite fenêtre de confirmation avant d'annuler la création */}
       {showCancelModal && (
         <>
           <div className="creer-salle-backdrop" />

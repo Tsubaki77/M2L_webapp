@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { api } from '../../../../utils/api';
 
+// Menu déroulant pour choisir le type de la salle (sport ou événement),
+// avec la possibilité d'en créer un nouveau s'il n'existe pas encore
 const TypeSalleSelection = ({ value, onChange, typesSalles, setTypesSalles }) => {
   const [showForm, setShowForm]       = useState(false);
   const [nouveauType, setNouveauType] = useState('');
@@ -15,6 +17,7 @@ const TypeSalleSelection = ({ value, onChange, typesSalles, setTypesSalles }) =>
     if (found) onChange(found);
   };
 
+  // Crée un nouveau type de salle côté API puis le sélectionne directement
   const handleCreer = async () => {
     if (!nouveauType.trim()) return;
     try {

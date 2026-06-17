@@ -3,10 +3,13 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { eventOnDate } from '../../utils/calendarUtils';
 
-const MAX_SHOWN = 2;
+const MAX_AFFICHES = 2; // nombre de réservations affichées par jour avant le "+X de plus"
 
+// Vue mois : utilise la librairie react-calendar et ajoute les réservations
+// du jour directement dans chaque case
 const MonthView = ({ events, activeDate, setActiveDate, setCurrentView, handleEventClick }) => {
 
+  // Cliquer sur un jour bascule sur la vue "jour" correspondante
   const handleDayClick = (date) => {
     setActiveDate(date);
     setCurrentView('day');
@@ -29,7 +32,7 @@ const MonthView = ({ events, activeDate, setActiveDate, setCurrentView, handleEv
 
           return (
             <div className="w-100 text-start mt-1 d-flex flex-column gap-1">
-              {dayEvents.slice(0, MAX_SHOWN).map(ev => (
+              {dayEvents.slice(0, MAX_AFFICHES).map(ev => (
                 <div
                   key={ev.id}
                   className="cal-month-event"
@@ -43,8 +46,8 @@ const MonthView = ({ events, activeDate, setActiveDate, setCurrentView, handleEv
                   {ev.heureDebut?.slice(0, 5)} {ev.motif}
                 </div>
               ))}
-              {dayEvents.length > MAX_SHOWN && (
-                <div className="cal-month-more">+{dayEvents.length - MAX_SHOWN} de plus</div>
+              {dayEvents.length > MAX_AFFICHES && (
+                <div className="cal-month-more">+{dayEvents.length - MAX_AFFICHES} de plus</div>
               )}
             </div>
           );

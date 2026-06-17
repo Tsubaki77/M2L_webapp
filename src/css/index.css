@@ -35,6 +35,15 @@ body {
 
 .force-normal-case { text-transform: none !important; }
 
+/* Bebas Neue rend les minuscules quasi illisibles : on garde une police
+   normale pour les champs où l'utilisateur doit lire précisément ce qu'il
+   tape (email, mot de passe), sur toute l'application */
+input[type="email"],
+input[type="password"] {
+  font-family: 'Roboto', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
 /* ============================================================
    SCROLLBAR
    ============================================================ */
@@ -1752,24 +1761,11 @@ button.learn-more:hover .button-text        { color: #fff; }
   gap: 1rem;
 }
 
-.gest-header {
+.gest-toolbar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 1.5rem;
   flex-shrink: 0;
-}
-
-.gest-header-title {
-  font-weight: 700;
-  color: var(--m2l-dark-red);
-  margin: 0 0 0.25rem;
-}
-
-.gest-header-sub {
-  color: #6c757d;
-  font-size: 0.875rem;
-  margin: 0;
 }
 
 .gest-table-card {
@@ -1782,14 +1778,14 @@ button.learn-more:hover .button-text        { color: #fff; }
 }
 
 .gest-thead th {
-  background-color: #f8f9fa;
+  background-color: var(--m2l-red);
+  color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6c757d;
-  border-bottom: 2px solid #dee2e6;
-  padding: 0.75rem 1rem;
+  border-bottom: none;
+  padding: 0.85rem 1rem;
 }
 
 .gest-thead th:first-child { padding-left: 1.25rem; }
@@ -1802,7 +1798,38 @@ button.learn-more:hover .button-text        { color: #fff; }
 .gest-table-card .table td:first-child { padding-left: 1.25rem; }
 .gest-table-card .table td:last-child  { padding-right: 1.25rem; }
 
+/* Badge Actif / Inactif */
+.gest-statut-badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 50rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+.gest-statut-badge.actif   { background-color: var(--m2l-red); }
+.gest-statut-badge.inactif { background-color: var(--m2l-dark-red); }
+
+/* Icônes d'action dans la colonne "Actes" */
+.gest-action-btn {
+  background: none;
+  border: none;
+  color: var(--m2l-red);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+.gest-action-btn:hover     { opacity: 0.65; }
+.gest-action-btn:disabled  { opacity: 0.35; cursor: not-allowed; }
+
 .gest-empty {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -7,13 +7,16 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../utils/api';
 import { reservationToEvent, eventOnDate } from '../../utils/calendarUtils';
 
+// Mini calendrier du dashboard : affiche un point coloré sur les jours
+// où il y a au moins une réservation (en attente ou validée)
 const CalendarCard = () => {
   const navigate = useNavigate();
-  const [date,   setDate]   = useState(new Date());
+  const [date, setDate]     = useState(new Date());
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     api.getReservations()
+      // On ne garde pas les réservations refusées : elles ne concernent plus la salle
       .then(data => setEvents(data.filter(r => r.statut !== 'REFUSEE').map(reservationToEvent)))
       .catch(() => setEvents([]));
   }, []);
@@ -42,6 +45,7 @@ const CalendarCard = () => {
             const dayEvents = events.filter(e => eventOnDate(e, tileDate));
             if (dayEvents.length === 0) return null;
 
+            // On affiche un point coloré par réservation (3 maximum) sur la case du jour
             return (
               <div className="d-flex justify-content-center gap-1 mt-1 flex-wrap">
                 {dayEvents.slice(0, 3).map(ev => (

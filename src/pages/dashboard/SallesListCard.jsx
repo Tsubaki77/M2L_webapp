@@ -3,15 +3,17 @@ import { MapPin, ChevronRight, Building2, Trophy, Loader2, AlertCircle } from 'l
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../utils/api';
 
+// Carte du dashboard qui liste les salles gérées par le gestionnaire connecté
+// (ou toutes les salles si c'est un super-administrateur)
 const SallesListCard = () => {
-  const navigate    = useNavigate();
-  const [salles,     setSalles]     = useState([]);
-  const [isLoading,  setIsLoading]  = useState(true);
-  const [error,      setError]      = useState(null);
+  const navigate = useNavigate();
+  const [salles, setSalles]       = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError]         = useState(null);
 
   useEffect(() => {
-    const fetch = api.isSuperAdmin() ? api.getSalles() : api.getMesSalles();
-    fetch
+    const requete = api.isSuperAdmin() ? api.getSalles() : api.getMesSalles();
+    requete
       .then(data => setSalles(data))
       .catch(() => setError('Impossible de charger les salles.'))
       .finally(() => setIsLoading(false));
@@ -24,7 +26,6 @@ const SallesListCard = () => {
     >
       <div className="card-body d-flex flex-column h-100">
 
-        {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
           <div>
             <h5 className="fw-bold mb-0" style={{ color: '#430000', fontSize: '1.2rem' }}>Mes Salles</h5>
@@ -42,7 +43,6 @@ const SallesListCard = () => {
           )}
         </div>
 
-        {/* Loader */}
         {isLoading && (
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-muted">
             <Loader2 size={28} className="spinner-icon mb-2" style={{ color: '#CC4040' }} />
@@ -50,7 +50,6 @@ const SallesListCard = () => {
           </div>
         )}
 
-        {/* Erreur */}
         {error && (
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-danger">
             <AlertCircle size={28} className="mb-2" />
@@ -58,7 +57,6 @@ const SallesListCard = () => {
           </div>
         )}
 
-        {/* Liste */}
         {!isLoading && !error && (
           <div className="d-flex flex-column gap-2 custom-scroll flex-grow-1" style={{ overflowY: 'auto' }}>
             {salles.length === 0 ? (

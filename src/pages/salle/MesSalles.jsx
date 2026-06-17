@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, MapPin, Trophy, Briefcase, Loader2, Trash2 } from 'lucide-react';
-import { api } from '../../utils/api';
+import { api, BASE_URL } from '../../utils/api';
 
+// Page qui liste les salles : toutes pour un super-admin,
+// seulement les siennes pour un gestionnaire normal
 const MesSalles = () => {
   const navigate = useNavigate();
   const isSuperAdmin = api.isSuperAdmin();
@@ -21,7 +23,7 @@ const MesSalles = () => {
   }, [isSuperAdmin]);
 
   const handleDelete = async (e, id) => {
-    e.stopPropagation();
+    e.stopPropagation(); // évite d'ouvrir la fiche de la salle en cliquant sur la corbeille
     if (!confirm('Supprimer cette salle ?')) return;
     try {
       await api.deleteSalle(id);
@@ -95,7 +97,7 @@ const MesSalles = () => {
                 <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover-effect">
                   <div className="mes-salles-card-img">
                     <img
-                      src={salle.photo ? `http://localhost:8000${salle.photo}` : '/assets/estetic/salle-placeholder.png'}
+                      src={salle.photo ? `${BASE_URL}${salle.photo}` : '/assets/estetic/salle-placeholder.png'}
                       alt={salle.nom}
                       className="w-100 h-100 object-fit-cover"
                     />

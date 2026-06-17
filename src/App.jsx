@@ -3,8 +3,8 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/index.css';
 
-import Sidebar    from './components/SideBar';
-import Header     from './components/Header';
+import Sidebar        from './components/SideBar';
+import Header         from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Dashboard                from './pages/dashboard/Dashboard';
@@ -20,7 +20,9 @@ import MdpOublie                from './pages/login/MdpOublie.jsx';
 import Calendrier               from './pages/calendrier/Calendrier.jsx';
 
 function App() {
-  const location   = useLocation();
+  const location = useLocation();
+
+  // Les pages de connexion n'affichent pas le menu ni l'en-tête
   const isAuthPage = location.pathname === '/login' || location.pathname === '/forget-password';
 
   return (
@@ -34,23 +36,25 @@ function App() {
 
         <main className="app-main">
           <Routes>
-            {/* ROUTES PUBLIQUES */}
-            <Route path="/login"            element={<Login />} />
-            <Route path="/forget-password"  element={<MdpOublie />} />
 
-            {/* ROUTES PROTÉGÉES */}
-            <Route path="/"                     element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/demandes_en_attentes"  element={<ProtectedRoute><ListeDemandes /></ProtectedRoute>} />
-            <Route path="/demandes/:id"          element={<ProtectedRoute><DetailDemandeReservation /></ProtectedRoute>} />
-            <Route path="/mes_salles"            element={<ProtectedRoute><MesSalles /></ProtectedRoute>} />
-            <Route path="/salle/ajouter"         element={<ProtectedRoute><CreerSalle /></ProtectedRoute>} />
-            <Route path="/salles/:id"            element={<ProtectedRoute><DetailSalles /></ProtectedRoute>} />
-            <Route path="/salles/modifier/:id"   element={<ProtectedRoute><ModifierSalle /></ProtectedRoute>} />
-            <Route path="/gestionnaires"         element={<ProtectedRoute><GestionnairesPage /></ProtectedRoute>} />
-            <Route path="/calendrier"            element={<ProtectedRoute><Calendrier /></ProtectedRoute>} />
+            {/* Pages accessibles sans être connecté */}
+            <Route path="/login"           element={<Login />} />
+            <Route path="/forget-password" element={<MdpOublie />} />
 
-            {/* Redirection URL inconnue */}
+            {/* Pages réservées aux gestionnaires connectés */}
+            <Route path="/"                    element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/demandes_en_attentes" element={<ProtectedRoute><ListeDemandes /></ProtectedRoute>} />
+            <Route path="/demandes/:id"         element={<ProtectedRoute><DetailDemandeReservation /></ProtectedRoute>} />
+            <Route path="/mes_salles"           element={<ProtectedRoute><MesSalles /></ProtectedRoute>} />
+            <Route path="/salle/ajouter"        element={<ProtectedRoute><CreerSalle /></ProtectedRoute>} />
+            <Route path="/salles/:id"           element={<ProtectedRoute><DetailSalles /></ProtectedRoute>} />
+            <Route path="/salles/modifier/:id"  element={<ProtectedRoute><ModifierSalle /></ProtectedRoute>} />
+            <Route path="/gestionnaires"        element={<ProtectedRoute><GestionnairesPage /></ProtectedRoute>} />
+            <Route path="/calendrier"           element={<ProtectedRoute><Calendrier /></ProtectedRoute>} />
+
+            {/* Si l'URL ne correspond à rien, on revient à l'accueil */}
             <Route path="*" element={<Navigate to="/" replace />} />
+
           </Routes>
         </main>
 

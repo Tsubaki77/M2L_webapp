@@ -3,9 +3,11 @@ import { ListTodo } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../utils/api';
 
+// Carte du dashboard affichant le nombre de demandes en attente.
+// Un clic sur la carte redirige vers la liste complète des demandes.
 const DemandeCard = () => {
   const navigate = useNavigate();
-  const [count,     setCount]     = useState(0);
+  const [count, setCount]         = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +23,7 @@ const DemandeCard = () => {
       style={{ backgroundColor: '#CC4040', borderRadius: '16px', cursor: 'pointer' }}
       onClick={() => navigate('/demandes_en_attentes')}
     >
-      {/* Décorations */}
+      {/* Cercles décoratifs en fond de carte */}
       <div className="position-absolute bg-white rounded-circle" style={{ width: '500px', height: '500px', top: '-80px', right: '-80px', opacity: 0.08 }} />
       <div className="position-absolute bg-white rounded-circle" style={{ width: '800px', height: '800px', top: '30px', right: '20px', opacity: 0.08 }} />
 
