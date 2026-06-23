@@ -1,7 +1,10 @@
-// On récupère l'adresse du serveur depuis l'URL du navigateur.
-// Comme ça, peu importe l'IP du réseau, ça fonctionne toujours
-// tant que le PC et l'appareil sont sur le même réseau Wi-Fi.
-export const BASE_URL = `http://${window.location.hostname}:8000`;
+// En production (Railway), l'API n'est pas sur le même domaine que la webapp :
+// on utilise alors l'URL fournie par la variable d'environnement VITE_API_URL.
+// En local/LAN, pas besoin de la définir : on retombe sur l'hôte du navigateur,
+// ce qui marche tant que le PC et l'appareil sont sur le même réseau Wi-Fi.
+export const BASE_URL = (
+  import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`
+).replace(/\/$/, '');
 
 export const api = {
 
