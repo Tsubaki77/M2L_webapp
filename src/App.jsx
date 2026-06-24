@@ -15,6 +15,9 @@ import DetailSalles             from './pages/salle/detailsalle/DetailSalles.jsx
 import CreerSalle               from './pages/salle/creersalle/CreerSalle.jsx';
 import ModifierSalle            from './pages/salle/modifiersalle/ModifierSalle.jsx';
 import GestionnairesPage        from './pages/gestionnaires/GestionnairesPage.jsx';
+import ListeLigues              from './pages/adherents/ListeLigues.jsx';
+import ListeMembres             from './pages/adherents/ListeMembres.jsx';
+import ListeReservationsMembre  from './pages/adherents/ListeReservationsMembre.jsx';
 import Login                    from './pages/login/Login.jsx';
 import MdpOublie                from './pages/login/MdpOublie.jsx';
 import Calendrier               from './pages/calendrier/Calendrier.jsx';
@@ -50,6 +53,9 @@ function App() {
             <Route path="/salles/:id"           element={<ProtectedRoute><DetailSalles /></ProtectedRoute>} />
             <Route path="/salles/modifier/:id"  element={<ProtectedRoute><ModifierSalle /></ProtectedRoute>} />
             <Route path="/gestionnaires"        element={<ProtectedRoute><GestionnairesPage /></ProtectedRoute>} />
+            <Route path="/adherents"            element={<ProtectedRoute><ListeLigues /></ProtectedRoute>} />
+            <Route path="/adherents/ligues/:id" element={<ProtectedRoute><ListeMembres /></ProtectedRoute>} />
+            <Route path="/adherents/membres/:id" element={<ProtectedRoute><ListeReservationsMembre /></ProtectedRoute>} />
             <Route path="/calendrier"           element={<ProtectedRoute><Calendrier /></ProtectedRoute>} />
 
             {/* Si l'URL ne correspond à rien, on revient à l'accueil */}

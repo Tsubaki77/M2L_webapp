@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, Dumbbell, LogOut, ListTodo, Users } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Dumbbell, LogOut, ListTodo, Users, UserCheck } from 'lucide-react';
 import { api } from '../utils/api';
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard',    path: '/',                     icon: <LayoutDashboard size={22} /> },
     { name: 'Les Demandes', path: '/demandes_en_attentes', icon: <ListTodo size={22} /> },
+    { name: 'Adhérents',    path: '/adherents',            icon: <UserCheck size={22} /> },
     { name: 'Mes Salles',   path: '/mes_salles',           icon: <Dumbbell size={22} /> },
     { name: 'Calendrier',   path: '/calendrier',           icon: <CalendarDays size={22} /> },
     ...(isSuperAdmin ? [{ name: 'Gestionnaires', path: '/gestionnaires', icon: <Users size={22} /> }] : []),

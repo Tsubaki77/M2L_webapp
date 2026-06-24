@@ -267,4 +267,23 @@ export const api = {
   deleteReservation: async (id) => {
     await api.request(`/api/reservations/${id}`, { method: 'DELETE' });
   },
+
+  // ==========================================================
+  // PAGE ADHÉRENTS (ligues -> membres -> réservations)
+  // ==========================================================
+
+  getLigues: async () => {
+    const res = await api.request('/api/ligues');
+    return res.json();
+  },
+
+  getMembresLigue: async (id) => {
+    const res = await api.request(`/api/ligues/${id}/membres`);
+    return res.json();
+  },
+
+  getReservationsMembre: async (id) => {
+    const res = await api.request(`/api/ligues/membres/${id}/reservations`);
+    return res.json();
+  },
 };
